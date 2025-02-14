@@ -4,11 +4,6 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "echo",
-			"type": "shell",
-			"command": "echo Hello"
-		},
-		{
 			"label": "Get PR from Github",
 			"type": "shell",
 			"command": "git fetch origin pull/${input:prNumber}/head:pr-${input:prNumber} && git checkout pr-${input:prNumber}"
@@ -17,6 +12,11 @@
 			"label": "Remove PR branch",
 			"type": "shell",
 			"command": "git checkout stage && git branch -D pr-${input:prNumber}"
+		},
+		{
+			"label": "RePull PR from Github",
+			"type": "shell",
+			"command": "git checkout stage && git branch -D pr-${input:prNumber} && git fetch origin pull/${input:prNumber}/head:pr-${input:prNumber} && git checkout pr-${input:prNumber}"
 		}
 	],
 
