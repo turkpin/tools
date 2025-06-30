@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>SQL Values to SET</title>
+    <!-- taildwind css -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-800 text-white">
+    <h1 class="text-3xl font-bold p-4">Convert INSERT query to SET query</h1>
+
+    <div class="flex">
+        <!-- left side -->
+        <div class="w-1/2 p-4">
+            <h1 class="text-2xl font-bold">Insert Query</h1>
+            <textarea
+                id="insertQuery"
+                class="w-full h-[90vh] p-2 border border-gray-300 rounded-lg"
+                placeholder="Enter your INSERT query here..."
+                col="30"
+                row="10"
+            ></textarea>
+        </div>
+        <!-- right side -->
+        <div class="w-1/2 p-4">
+            <h1 class="text-2xl font-bold">Set Query</h1>
+            <textarea
+                id="setQuery"
+                class="w-full h-[90vh] p-2 border border-gray-300 rounded-lg"
+                placeholder="Set query will be displayed here..."
+                col="30"
+                row="10"
+            ></textarea>
+        </div>
+    </div>
+
+    <script>
+        function convertInsertToSet(query) {
+            const regex = /INSERT INTO\s+`(?<table>[^`]+)`\s+\((?<fields>[^)]+)\)\s+VALUES\s+\((?<values>[^)]+)\)/;
+            const match = query.match(regex);
+            if (!match) {
+                throw new Error("Invalid INSERT query format.");
+            }
+            let { table, fields, values } = match.groups;
+            fields = fields.split(",").map((col) => col.trim());
+            values = values.split(",").map((val) => val.trim());
+            let setQuery = `INSERT INTO\n    \`${table}\`\nSET\n`;
+            for (let i = 0; i < fields.length; i++) {
+                const field = fields[i];
+                const value = values[i];
+                const formattedValue = value === "NULL" ? "NULL" : `${value}`;
+                setQuery += `    ${field} = ${formattedValue},\n`;
+            }
+            setQuery = setQuery.slice(0, -2) + ";";
+            return setQuery;
+        }
+        const insertQueryEl = document.getElementById("insertQuery");
+        const setQueryEl = document.getElementById("setQuery");
+
+        insertQueryEl.addEventListener("input", () => {
+            const insertQuery = insertQueryEl.value;
+            try {
+                const setQuery = convertInsertToSet(insertQuery);
+                setQueryEl.value = setQuery;
+            } catch (error) {
+                setQueryEl.value = error.message;
+            }
+        });
+    </script>
+</body>
+
+</html>
