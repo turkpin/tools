@@ -1,0 +1,152 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html
+    lang="en"
+    class="h-full bg-gray-50 dark:bg-gray-900"
+    data-theme=""
+>
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Turkpin DEV Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="h-full text-gray-900 dark:text-gray-100">
+    <div class="min-h-full">
+        <header class="bg-white dark:bg-gray-800 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Turkpin DEV Tools
+                </h1>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {% assign all_dirs = "" | split: "," %}
+            {% for file in site.static_files %}
+            {% assign parts = file.path | split: "/" %}
+            {% assign depth = parts.size | minus: 1 %}
+            {% if depth > 0 %}
+            {% assign dir_parts = parts | slice: 0, depth %}
+            {% assign cumulative = "" %}
+            {% for segment in dir_parts %}
+            {% if cumulative == "" %}
+            {% assign cumulative = segment %}
+            {% else %}
+            {% assign cumulative = cumulative | append: "/" | append: segment %}
+            {% endif %}
+            {% unless all_dirs contains cumulative %}
+            {% assign all_dirs = all_dirs | push: cumulative %}
+            {% endunless %}
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+            {% assign sorted_dirs = all_dirs | sort %}
+
+
+            {% for dir in sorted_dirs %}
+            {% assign dir_parts = dir | split: "/" %}
+            {% assign depth = dir_parts.size %}
+            {% assign dir_name = dir_parts | last %}
+
+            {% assign indent_style = "" %}
+            {% if depth == 2 %}
+            {% assign indent_style = "margin-left: 2rem;" %}
+            {% elsif depth == 3 %}
+            {% assign indent_style = "margin-left: 4rem;" %}
+            {% elsif depth == 4 %}
+            {% assign indent_style = "margin-left: 6rem;" %}
+            {% elsif depth >= 5 %}
+            {% assign indent_style = "margin-left: 8rem;" %}
+            {% endif %}
+
+            <div
+                class="mb-6"
+                style="{{ indent_style }}"
+            >
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4 flex items-center">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+                        />
+                    </svg>
+                    {{ dir_name | capitalize }}
+                </h2>
+
+                {% assign direct_files = "" | split: "," %}
+                {% for file in site.static_files %}
+                {% assign file_path = file.path | remove_first: "/" %}
+                {% assign file_parts = file_path | split: "/" %}
+                {% assign file_parts_size = file_parts.size | minus: 1  %}
+                {% assign file_dir = file_parts | slice: 0, file_parts_size - 1 | join: "/" %}
+
+                {% if file_dir == dir %}
+                {% assign direct_files = direct_files | push: file %}
+                {% endif %}
+                {% endfor %}
+
+
+
+                {% if direct_files.size > 0 %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for file in direct_files %}
+                    <div
+                        class="group p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+                        <a
+                            href="{{ file.path }}"
+                            class="block"
+                        >
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0">
+                                    <svg
+                                        class="h-6 w-6 text-gray-400 dark:text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p
+                                        class="text-sm font-medium truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 text-gray-900 dark:text-gray-100">
+                                        {{ file.path | split: "/" | last }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ file.extname | remove_first: "." | upcase | default: "File" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </main>
+    </div>
+</body>
+
+</html>
