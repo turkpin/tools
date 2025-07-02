@@ -1,0 +1,2 @@
+title: Tools Explorer
+exclude: [_config.yml, Gemfile, Gemfile.lock, LICENSE, README.md]
