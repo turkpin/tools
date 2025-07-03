@@ -67,6 +67,8 @@ layout: null
             {% assign indent_style = "margin-left: 8rem;" %}
             {% endif %}
 
+            {% if dir_name | size > 0 %}
+
             <div
                 class="mb-6"
                 style="{{ indent_style }}"
@@ -144,6 +146,7 @@ layout: null
                 </div>
                 {% endif %}
             </div>
+            {% endif %}
             {% endfor %}
         </main>
     </div>
