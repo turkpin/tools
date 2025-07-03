@@ -95,15 +95,13 @@ layout: null
                 {% for file in site.static_files %}
                 {% assign file_path = file.path | remove_first: "/" %}
                 {% assign file_parts = file_path | split: "/" %}
-                {% assign file_parts_size = file_parts.size | minus: 1  %}
+                {% assign file_parts_size = file_parts.size | minus: 1 %}
                 {% assign file_dir = file_parts | slice: 0, file_parts_size - 1 | join: "/" %}
 
                 {% if file_dir == dir %}
                 {% assign direct_files = direct_files | push: file %}
                 {% endif %}
                 {% endfor %}
-
-
 
                 {% if direct_files.size > 0 %}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
