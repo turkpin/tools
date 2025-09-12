@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Postman Formatter</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-slate-100">
+        <div class="container mx-auto p-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div>x-www-form-urlencoded</div>
+                    <textarea id="input" class="resize w-full h-[50vh] p-2"></textarea>
+                </div>
+                <div>
+                    <div>postman bulk-edit</div>
+                    <textarea id="output" class="resize w-full h-[50vh] p-2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let inputEl = document.getElementById("input");
+            let outputEl = document.getElementById("output");
+
+            inputEl.addEventListener("input", format);
+
+            function format() {
+                let input = inputEl.value;
+                let entries = objectFromQueryParams(input);
+                let output = "";
+                for (let key in entries) {
+                    let value = entries[key];
+                    value = value.trim();
+                    output += `${key}:${value}\n`;
+                }
+                outputEl.value = output;
+            }
+
+            function objectFromQueryParams(queryParams) {
+                let usp = new URLSearchParams(queryParams);
+                let obj = Object.fromEntries(usp);
+                return obj;
+            }
+        </script>
+    </body>
+</html>
