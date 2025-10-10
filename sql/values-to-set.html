@@ -45,10 +45,15 @@
 
             insertQueryEl.addEventListener("input", () => {
                 const insertQuery = insertQueryEl.value.trim();
+                let tableDesc = tableDescBox.value.trim();
+                if (tableDesc) {
+                    let parts = tableDesc.split("\n\n");
+                    tableDesc = parts[parts.length - 1];
+                }
                 let output = "";
                 if (insertQuery) {
                     try {
-                        output = convertInsertToSet(insertQuery);
+                        output = convertInsertToSet(insertQuery, tableDesc);
                     } catch (error) {
                         output = error.message;
                     }
@@ -56,13 +61,32 @@
                 setQueryEl.value = output;
             });
 
-            function convertInsertToSet(query) {
+            function convertInsertToSet(query, tableDesc) {
                 let parsedInsertValues = parseInsertValuesSql(query);
                 let { table, fields, values } = parsedInsertValues;
+                if (tableDesc) {
+                    tableDesc = parseTableDescription(tableDesc);
+                }
                 let setQuery = `INSERT INTO\n    \`${table}\`\nSET\n`;
                 for (let i = 0; i < fields.length; i++) {
                     const field = fields[i];
                     const value = values[i];
+                    let defaultValue = null;
+                    if (tableDesc) {
+                        let fieldDef = tableDesc.find((f) => f.Field === field.replace(/`/g, ""));
+                        if (fieldDef) {
+                            defaultValue = fieldDef.Default;
+                        }
+                        if (defaultValue === "NULL" && !fieldDef.Null) {
+                            defaultValue = "";
+                        }
+                        if (defaultValue !== "NULL") {
+                            defaultValue = `'${defaultValue}'`;
+                        }
+                    }
+                    if (value === defaultValue) {
+                        continue;
+                    }
                     setQuery += `    ${field} = ${value},\n`;
                 }
                 setQuery = setQuery.slice(0, -2) + ";";
