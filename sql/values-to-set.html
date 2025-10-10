@@ -75,6 +75,51 @@
                 setQuery = setQuery.slice(0, -2) + ";";
                 return setQuery;
             }
+
+            function parseTableDescription(desc) {
+                let structure = [];
+                let lines = desc.split("\n");
+                for (let line of lines) {
+                    let fieldDef = buildFieldDefFromLine(line);
+                    structure.push(fieldDef);
+                }
+                return structure;
+            }
+
+            function buildFieldDefFromLine(line) {
+                let parts = line.trim().split(/\s+/); // 4, 5, 6, or 7 parts
+                let field = parts.shift();
+                let type = parts.shift();
+                var nextPart = parts.shift();
+                if (nextPart == "unsigned") {
+                    type += " unsigned";
+                } else {
+                    parts.unshift(nextPart);
+                }
+                let null_str = parts.shift() == "YES";
+                let keys = ["PRI", "UNI", "MUL"];
+                let key = null;
+                var nextPart = parts.shift();
+                if (keys.includes(nextPart)) {
+                    key = nextPart;
+                } else {
+                    parts.unshift(nextPart);
+                }
+                let default_str = parts.shift();
+                if (default_str === "NULL") {
+                    default_str = null;
+                }
+                let extra = parts.join(" ");
+                let fieldDef = {
+                    Field: field,
+                    Type: type,
+                    Null: null_str,
+                    Key: key,
+                    Default: default_str,
+                    Extra: extra,
+                };
+                return fieldDef;
+            }
         </script>
     </body>
 </html>
