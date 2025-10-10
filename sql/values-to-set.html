@@ -11,7 +11,7 @@
         <h1 class="text-2xl font-semibold p-4">INSERT query to SET query</h1>
 
         <div class="flex p-4 gap-4">
-            <div class="w-1/2">
+            <div class="w-2/5">
                 <h1 class="text-xl font-semibold mb-1">Insert Query</h1>
                 <textarea
                     id="insertQuery"
@@ -20,7 +20,7 @@
                     autofocus
                 ></textarea>
             </div>
-            <div class="w-1/2">
+            <div class="w-2/5">
                 <h1 class="text-xl font-semibold mb-1">Set Query</h1>
                 <textarea
                     id="setQuery"
@@ -28,11 +28,20 @@
                     placeholder="INSERT INTO `table` SET `field_1` = 'value_1', ...;"
                 ></textarea>
             </div>
+            <div class="w-1/5">
+                <h1 class="text-xl font-semibold mb-1">Table Description</h1>
+                <textarea
+                    id="tableDescBox"
+                    class="w-full h-[80vh] p-2 border border-gray-300/25 rounded-lg bg-white/5 font-mono"
+                    placeholder="Result of 'DESCRIBE table;'"
+                ></textarea>
+            </div>
         </div>
 
         <script>
             const insertQueryEl = document.getElementById("insertQuery");
             const setQueryEl = document.getElementById("setQuery");
+            const tableDescBox = document.getElementById("tableDescBox");
 
             insertQueryEl.addEventListener("input", () => {
                 const insertQuery = insertQueryEl.value.trim();
