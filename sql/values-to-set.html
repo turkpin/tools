@@ -111,9 +111,6 @@
                     parts.unshift(nextPart);
                 }
                 let default_str = parts.shift();
-                if (default_str === "NULL") {
-                    default_str = null;
-                }
                 let extra = parts.join(" ");
                 let fieldDef = {
                     Field: field,
