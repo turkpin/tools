@@ -31,6 +31,19 @@
         </div>
 
         <script>
+            const insertQueryEl = document.getElementById("insertQuery");
+            const setQueryEl = document.getElementById("setQuery");
+
+            insertQueryEl.addEventListener("input", () => {
+                const insertQuery = insertQueryEl.value;
+                try {
+                    const setQuery = convertInsertToSet(insertQuery);
+                    setQueryEl.value = setQuery;
+                } catch (error) {
+                    setQueryEl.value = error.message;
+                }
+            });
+
             function convertInsertToSet(query) {
                 const regex = /INSERT INTO\s+`(?<table>[^`]+)`\s+\((?<fields>[^)]+)\)\s+VALUES\s+\((?<values>[^)]+)\)/;
                 const match = query.match(regex);
@@ -50,18 +63,6 @@
                 setQuery = setQuery.slice(0, -2) + ";";
                 return setQuery;
             }
-            const insertQueryEl = document.getElementById("insertQuery");
-            const setQueryEl = document.getElementById("setQuery");
-
-            insertQueryEl.addEventListener("input", () => {
-                const insertQuery = insertQueryEl.value;
-                try {
-                    const setQuery = convertInsertToSet(insertQuery);
-                    setQueryEl.value = setQuery;
-                } catch (error) {
-                    setQueryEl.value = error.message;
-                }
-            });
         </script>
     </body>
 </html>
