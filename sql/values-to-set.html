@@ -44,6 +44,7 @@
             const tableDescBox = document.getElementById("tableDescBox");
 
             insertQueryEl.addEventListener("input", convert);
+            tableDescBox.addEventListener("input", convert);
 
             function convert() {
                 const insertQuery = insertQueryEl.value.trim();
