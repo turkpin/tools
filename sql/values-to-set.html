@@ -35,13 +35,16 @@
             const setQueryEl = document.getElementById("setQuery");
 
             insertQueryEl.addEventListener("input", () => {
-                const insertQuery = insertQueryEl.value;
-                try {
-                    const setQuery = convertInsertToSet(insertQuery);
-                    setQueryEl.value = setQuery;
-                } catch (error) {
-                    setQueryEl.value = error.message;
+                const insertQuery = insertQueryEl.value.trim();
+                let output = "";
+                if (insertQuery) {
+                    try {
+                        output = convertInsertToSet(insertQuery);
+                    } catch (error) {
+                        output = error.message;
+                    }
                 }
+                setQueryEl.value = output;
             });
 
             function convertInsertToSet(query) {
