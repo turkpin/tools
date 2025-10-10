@@ -8,22 +8,23 @@
     </head>
 
     <body class="bg-gray-800 text-white">
-        <h1 class="text-3xl font-bold p-4">INSERT query to SET query</h1>
+        <h1 class="text-2xl font-semibold p-4">INSERT query to SET query</h1>
 
-        <div class="flex">
-            <div class="w-1/2 p-4">
-                <h1 class="text-2xl font-bold">Insert Query</h1>
+        <div class="flex p-4 gap-4">
+            <div class="w-1/2">
+                <h1 class="text-xl font-semibold mb-1">Insert Query</h1>
                 <textarea
                     id="insertQuery"
-                    class="w-full h-[80vh] p-2 border border-gray-300 rounded-lg"
+                    class="w-full h-[80vh] p-2 border border-gray-300/25 rounded-lg bg-white/5 font-mono"
                     placeholder="INSERT INTO `table` (`field_1`, ...) VALUES ('value_1', ...);"
+                    autofocus
                 ></textarea>
             </div>
-            <div class="w-1/2 p-4">
-                <h1 class="text-2xl font-bold">Set Query</h1>
+            <div class="w-1/2">
+                <h1 class="text-xl font-semibold mb-1">Set Query</h1>
                 <textarea
                     id="setQuery"
-                    class="w-full h-[80vh] p-2 border border-gray-300 rounded-lg"
+                    class="w-full h-[80vh] p-2 border border-gray-300/25 rounded-lg bg-white/5 font-mono"
                     placeholder="INSERT INTO `table` SET `field_1` = 'value_1', ...;"
                 ></textarea>
             </div>
