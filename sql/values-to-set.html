@@ -8,27 +8,23 @@
     </head>
 
     <body class="bg-gray-800 text-white">
-        <h1 class="text-3xl font-bold p-4">Convert INSERT query to SET query</h1>
+        <h1 class="text-3xl font-bold p-4">INSERT query to SET query</h1>
 
         <div class="flex">
             <div class="w-1/2 p-4">
                 <h1 class="text-2xl font-bold">Insert Query</h1>
                 <textarea
                     id="insertQuery"
-                    class="w-full h-[90vh] p-2 border border-gray-300 rounded-lg"
-                    placeholder="Enter your INSERT query here..."
-                    col="30"
-                    row="10"
+                    class="w-full h-[80vh] p-2 border border-gray-300 rounded-lg"
+                    placeholder="INSERT INTO `table` (`field_1`, ...) VALUES ('value_1', ...);"
                 ></textarea>
             </div>
             <div class="w-1/2 p-4">
                 <h1 class="text-2xl font-bold">Set Query</h1>
                 <textarea
                     id="setQuery"
-                    class="w-full h-[90vh] p-2 border border-gray-300 rounded-lg"
-                    placeholder="Set query will be displayed here..."
-                    col="30"
-                    row="10"
+                    class="w-full h-[80vh] p-2 border border-gray-300 rounded-lg"
+                    placeholder="INSERT INTO `table` SET `field_1` = 'value_1', ...;"
                 ></textarea>
             </div>
         </div>
