@@ -63,8 +63,7 @@
                 for (let i = 0; i < fields.length; i++) {
                     const field = fields[i];
                     const value = values[i];
-                    const formattedValue = value === "NULL" ? "NULL" : `${value}`;
-                    setQuery += `    ${field} = ${formattedValue},\n`;
+                    setQuery += `    ${field} = ${value},\n`;
                 }
                 setQuery = setQuery.slice(0, -2) + ";";
                 return setQuery;
