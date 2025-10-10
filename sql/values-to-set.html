@@ -43,7 +43,9 @@
             const setQueryEl = document.getElementById("setQuery");
             const tableDescBox = document.getElementById("tableDescBox");
 
-            insertQueryEl.addEventListener("input", () => {
+            insertQueryEl.addEventListener("input", convert);
+
+            function convert() {
                 const insertQuery = insertQueryEl.value.trim();
                 let tableDesc = tableDescBox.value.trim();
                 if (tableDesc) {
@@ -59,7 +61,7 @@
                     }
                 }
                 setQueryEl.value = output;
-            });
+            }
 
             function convertInsertToSet(query, tableDesc) {
                 let parsedInsertValues = parseInsertValuesSql(query);
