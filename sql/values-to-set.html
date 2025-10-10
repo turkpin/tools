@@ -57,14 +57,8 @@
             });
 
             function convertInsertToSet(query) {
-                const regex = /INSERT INTO\s+`(?<table>[^`]+)`\s+\((?<fields>[^)]+)\)\s+VALUES\s+\((?<values>[^)]+)\)/;
-                const match = query.match(regex);
-                if (!match) {
-                    throw new Error("Invalid INSERT query format.");
-                }
-                let { table, fields, values } = match.groups;
-                fields = fields.split(",").map((col) => col.trim());
-                values = values.split(",").map((val) => val.trim());
+                let parsedInsertValues = parseInsertValuesSql(query);
+                let { table, fields, values } = parsedInsertValues;
                 let setQuery = `INSERT INTO\n    \`${table}\`\nSET\n`;
                 for (let i = 0; i < fields.length; i++) {
                     const field = fields[i];
@@ -74,6 +68,18 @@
                 }
                 setQuery = setQuery.slice(0, -2) + ";";
                 return setQuery;
+            }
+
+            function parseInsertValuesSql(query) {
+                const regex = /INSERT INTO\s+`(?<table>[^`]+)`\s+\((?<fields>[^)]+)\)\s+VALUES\s+\((?<values>[^)]+)\)/;
+                const match = query.match(regex);
+                if (!match) {
+                    throw new Error("Invalid INSERT query format.");
+                }
+                let { table, fields, values } = match.groups;
+                fields = fields.split(",").map((col) => col.trim());
+                values = values.split(",").map((val) => val.trim());
+                return { table, fields, values };
             }
 
             function parseTableDescription(desc) {
