@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Smarty Formatter</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-slate-100 font-mono">
+        <div class="container2 mx-auto p-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div>input</div>
+                    <textarea
+                        id="input"
+                        class="resize w-full h-[70vh] p-2"
+                        spellcheck="false"
+                        placeholder=""
+                    ></textarea>
+                </div>
+                <div>
+                    <div>output</div>
+                    <textarea
+                        id="output"
+                        class="resize w-full h-[70vh] p-2"
+                        spellcheck="false"
+                        placeholder=""
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const input = document.getElementById("input");
+            const output = document.getElementById("output");
+
+            function formatSmarty(text) {
+                if (!text.trim()) return "";
+
+                // Split by lines and process each line
+                const lines = text.split("\n");
+                const formatted = lines
+                    .map((line) => {
+                        line = line.trim();
+                        if (!line) return "";
+
+                        // Check if it's a Smarty tag
+                        if (!line.startsWith("{") || !line.endsWith("}")) {
+                            return line;
+                        }
+
+                        // Remove opening and closing braces
+                        const content = line.slice(1, -1).trim();
+
+                        // Parse attributes while respecting nested structures
+                        const attributes = parseAttributes(content);
+
+                        if (attributes.length === 0) {
+                            return line;
+                        }
+
+                        // Format with indentation
+                        const tagName = attributes[0];
+                        const formattedAttrs = attributes.slice(1).map((attr) => `    ${attr}`);
+
+                        return `{${tagName}\n${formattedAttrs.join("\n")}\n    }`;
+                    })
+                    .join("\n");
+
+                return formatted;
+            }
+
+            function parseAttributes(content) {
+                const attributes = [];
+                let current = "";
+                let depth = 0;
+                let inQuote = false;
+                let quoteChar = "";
+
+                for (let i = 0; i < content.length; i++) {
+                    const char = content[i];
+                    const prevChar = i > 0 ? content[i - 1] : "";
+
+                    // Handle quotes
+                    if ((char === '"' || char === "'") && prevChar !== "\\") {
+                        if (!inQuote) {
+                            inQuote = true;
+                            quoteChar = char;
+                        } else if (char === quoteChar) {
+                            inQuote = false;
+                            quoteChar = "";
+                        }
+                    }
+
+                    // Track nesting depth (parentheses and brackets)
+                    if (!inQuote) {
+                        if (char === "(" || char === "[") {
+                            depth++;
+                        } else if (char === ")" || char === "]") {
+                            depth--;
+                        }
+                    }
+
+                    // Split on spaces when not inside quotes or nested structures
+                    if (char === " " && !inQuote && depth === 0) {
+                        if (current.trim()) {
+                            attributes.push(current.trim());
+                            current = "";
+                        }
+                        continue;
+                    }
+
+                    current += char;
+                }
+
+                // Add the last attribute
+                if (current.trim()) {
+                    attributes.push(current.trim());
+                }
+
+                return attributes;
+            }
+
+            // Auto-format on input
+            input.addEventListener("input", () => {
+                const formatted = formatSmarty(input.value);
+                output.value = formatted;
+            });
+
+            // Initialize with example from cases.txt
+            const example = `{component file="button-anchor.tpl" href=build_url("/procurement/orders/bulk-create", ["returnURL" => get_current_url(), "order_prv_id" => $category.cat_prv_id]) svg="plus" class="!tw-p-[2px]" title=t("Sipariş Oluştur") style="secondary"}`;
+            input.value = example;
+            input.dispatchEvent(new Event("input"));
+        </script>
+    </body>
+</html>
