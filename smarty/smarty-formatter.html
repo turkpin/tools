@@ -43,20 +43,29 @@
                 let i = 0;
 
                 while (i < lines.length) {
-                    let line = lines[i].trim();
+                    const originalLine = lines[i];
+                    let line = originalLine.trim();
 
                     if (!line) {
-                        formatted.push("");
+                        formatted.push(originalLine);
                         i++;
                         continue;
                     }
 
-                    // Check if it's a Smarty tag
-                    if (line.startsWith("{")) {
-                        let fullTag = line;
+                    // Get the original indentation
+                    const leadingWhitespace = originalLine.match(/^(\s*)/)[0];
+
+                    // Check if line contains a Smarty tag
+                    const tagStartIndex = originalLine.indexOf("{");
+                    if (tagStartIndex !== -1 && line.includes("}")) {
+                        // Extract everything before the tag (might be HTML)
+                        const beforeTag = originalLine.substring(0, tagStartIndex);
+                        const afterTagStart = originalLine.substring(tagStartIndex);
+
+                        let fullTag = afterTagStart.trim();
 
                         // If tag doesn't end on same line, collect until closing brace
-                        if (!line.endsWith("}")) {
+                        if (!fullTag.endsWith("}")) {
                             i++;
                             while (i < lines.length) {
                                 const nextLine = lines[i].trim();
@@ -75,15 +84,51 @@
                         const attributes = parseAttributes(content);
 
                         if (attributes.length === 0) {
-                            formatted.push(fullTag);
+                            formatted.push(originalLine);
                         } else {
-                            // Format with indentation
+                            // Format with indentation, preserving the original indent
                             const tagName = attributes[0];
-                            const formattedAttrs = attributes.slice(1).map((attr) => `    ${attr}`);
-                            formatted.push(`{${tagName}\n${formattedAttrs.join("\n")}\n    }`);
+                            const formattedAttrs = attributes.slice(1).map((attr) => `${leadingWhitespace}    ${attr}`);
+                            formatted.push(
+                                `${beforeTag}{${tagName}\n${formattedAttrs.join("\n")}\n${leadingWhitespace}    }`
+                            );
+                        }
+                    } else if (tagStartIndex !== -1) {
+                        // Tag starts but doesn't close on this line
+                        const beforeTag = originalLine.substring(0, tagStartIndex);
+                        const afterTagStart = originalLine.substring(tagStartIndex);
+
+                        let fullTag = afterTagStart.trim();
+
+                        // Collect until closing brace
+                        i++;
+                        while (i < lines.length) {
+                            const nextLine = lines[i].trim();
+                            fullTag += " " + nextLine;
+                            if (nextLine.endsWith("}")) {
+                                break;
+                            }
+                            i++;
+                        }
+
+                        // Remove opening and closing braces
+                        const content = fullTag.slice(1, -1).trim();
+
+                        // Parse attributes while respecting nested structures
+                        const attributes = parseAttributes(content);
+
+                        if (attributes.length === 0) {
+                            formatted.push(originalLine);
+                        } else {
+                            // Format with indentation, preserving the original indent
+                            const tagName = attributes[0];
+                            const formattedAttrs = attributes.slice(1).map((attr) => `${leadingWhitespace}    ${attr}`);
+                            formatted.push(
+                                `${beforeTag}{${tagName}\n${formattedAttrs.join("\n")}\n${leadingWhitespace}    }`
+                            );
                         }
                     } else {
-                        formatted.push(line);
+                        formatted.push(originalLine);
                     }
 
                     i++;
