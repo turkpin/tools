@@ -37,37 +37,59 @@
             function formatSmarty(text) {
                 if (!text.trim()) return "";
 
-                // Split by lines and process each line
+                // Split by lines and process, handling multi-line tags
                 const lines = text.split("\n");
-                const formatted = lines
-                    .map((line) => {
-                        line = line.trim();
-                        if (!line) return "";
+                const formatted = [];
+                let i = 0;
 
-                        // Check if it's a Smarty tag
-                        if (!line.startsWith("{") || !line.endsWith("}")) {
-                            return line;
+                while (i < lines.length) {
+                    let line = lines[i].trim();
+
+                    if (!line) {
+                        formatted.push("");
+                        i++;
+                        continue;
+                    }
+
+                    // Check if it's a Smarty tag
+                    if (line.startsWith("{")) {
+                        let fullTag = line;
+
+                        // If tag doesn't end on same line, collect until closing brace
+                        if (!line.endsWith("}")) {
+                            i++;
+                            while (i < lines.length) {
+                                const nextLine = lines[i].trim();
+                                fullTag += " " + nextLine;
+                                if (nextLine.endsWith("}")) {
+                                    break;
+                                }
+                                i++;
+                            }
                         }
 
                         // Remove opening and closing braces
-                        const content = line.slice(1, -1).trim();
+                        const content = fullTag.slice(1, -1).trim();
 
                         // Parse attributes while respecting nested structures
                         const attributes = parseAttributes(content);
 
                         if (attributes.length === 0) {
-                            return line;
+                            formatted.push(fullTag);
+                        } else {
+                            // Format with indentation
+                            const tagName = attributes[0];
+                            const formattedAttrs = attributes.slice(1).map((attr) => `    ${attr}`);
+                            formatted.push(`{${tagName}\n${formattedAttrs.join("\n")}\n    }`);
                         }
+                    } else {
+                        formatted.push(line);
+                    }
 
-                        // Format with indentation
-                        const tagName = attributes[0];
-                        const formattedAttrs = attributes.slice(1).map((attr) => `    ${attr}`);
+                    i++;
+                }
 
-                        return `{${tagName}\n${formattedAttrs.join("\n")}\n    }`;
-                    })
-                    .join("\n");
-
-                return formatted;
+                return formatted.join("\n");
             }
 
             function parseAttributes(content) {
