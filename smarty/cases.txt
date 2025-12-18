@@ -1,0 +1,87 @@
+normal format:
+
+input:
+
+{component file="button-anchor.tpl" href=build_url("/procurement/orders/bulk-create", ["returnURL" => get_current_url(), "order_prv_id" => $category.cat_prv_id]) svg="plus" class="!tw-p-[2px]" title=t("Sipariş Oluştur") style="secondary"}
+
+output:
+
+{component
+    file="button-anchor.tpl"
+    href=build_url("/procurement/orders/bulk-create", ["returnURL" => get_current_url(), "order_prv_id" => $category.cat_prv_id])
+    svg="plus"
+    class="!tw-p-[2px]"
+    title=t("Sipariş Oluştur")
+    style="secondary"
+    }
+
+---
+
+half formatted:
+
+input:
+
+{include_scoped
+        file="./add-edit-form.tpl"
+        id="edit"
+        action="{build_url([get_base_url(), "procurement/product-categories", $category.cat_id, "update"])}"
+factory_path=$factory_path
+providers=$providers
+category=$category
+epin_standards=$epin_standards
+provider_prd_std=$provider_prd_std
+provider=$provider
+}
+
+output:
+
+{include_scoped
+    file="./add-edit-form.tpl"
+    id="edit"
+    action="{build_url([get_base_url(), "procurement/product-categories", $category.cat_id, "update"])}"
+    factory_path=$factory_path
+    providers=$providers
+    category=$category
+    epin_standards=$epin_standards
+    provider_prd_std=$provider_prd_std
+    provider=$provider
+    }
+
+---
+
+preserve existing indentation:
+
+input:
+
+    <div class="card-header !tw-bg-slate-50/50">
+        <div class="tw-flex tw-gap-4 tw-justify-between">
+            <h6 class="m-0">
+                {component file="anchor.tpl" href=build_url("/procurement/orders/", ["order_prv_id" => $category.cat_prv_id]) text=t("Siparişler")}
+            </h6>
+            {component file="button-anchor.tpl" href=build_url("/procurement/orders/bulk-create", ["order_prv_id" => $category.cat_prv_id, "order_prd_cat_id" => $category.cat_id]) svg="plus" class="!tw-p-[2px]" title=t("Sipariş Oluştur") style="secondary"}
+        </div>
+    </div>
+
+
+output:
+
+    <div class="card-header !tw-bg-slate-50/50">
+        <div class="tw-flex tw-gap-4 tw-justify-between">
+            <h6 class="m-0">
+                {component
+                    file="anchor.tpl"
+                    href=build_url("/procurement/orders/", ["order_prv_id" => $category.cat_prv_id])
+                    text=t("Siparişler")
+                    }
+            </h6>
+            {component
+                file="button-anchor.tpl"
+                href=build_url("/procurement/orders/bulk-create", ["order_prv_id" => $category.cat_prv_id, "order_prd_cat_id" => $category.cat_id])
+                svg="plus"
+                class="!tw-p-[2px]"
+                title=t("Sipariş Oluştur")
+                style="secondary"
+                }
+        </div>
+    </div>
+
