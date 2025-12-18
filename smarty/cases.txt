@@ -85,3 +85,16 @@ output:
         </div>
     </div>
 
+
+---
+
+0-2 attributes
+
+input:
+
+{component file="select-link.tpl" title="foo"}
+
+output:
+
+{component file="select-link.tpl" title="foo"}
+

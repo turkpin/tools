@@ -83,7 +83,8 @@
                         // Parse attributes while respecting nested structures
                         const attributes = parseAttributes(content);
 
-                        if (attributes.length === 0) {
+                        // Only format if there are more than 2 attributes (tag name + more than 2 params)
+                        if (attributes.length === 0 || attributes.length <= 3) {
                             formatted.push(originalLine);
                         } else {
                             // Format with indentation, preserving the original indent
@@ -117,7 +118,8 @@
                         // Parse attributes while respecting nested structures
                         const attributes = parseAttributes(content);
 
-                        if (attributes.length === 0) {
+                        // Only format if there are more than 2 attributes (tag name + more than 2 params)
+                        if (attributes.length === 0 || attributes.length <= 3) {
                             formatted.push(originalLine);
                         } else {
                             // Format with indentation, preserving the original indent
