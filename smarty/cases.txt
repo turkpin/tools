@@ -98,3 +98,16 @@ output:
 
 {component file="select-link.tpl" title="foo"}
 
+
+---
+
+multiple but short attributes (if total length < 80)
+
+input:
+
+{component file="validation-error.tpl" key=$name class="tw-mt-2"}
+
+output:
+
+{component file="validation-error.tpl" key=$name class="tw-mt-2"}
+
