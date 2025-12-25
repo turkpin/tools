@@ -232,7 +232,7 @@
                             value: filterVal.value,
                         };
                         renderTableBody(applyFilterLogic(originalData));
-                        
+
                         // Scroll table into view after filtering
                         tableContainer.scrollIntoView({ behavior: "smooth", block: "center" });
                     };
@@ -306,7 +306,7 @@
                             if (!isEmpty) return false;
                             continue;
                         }
-                        
+
                         // For notempty operator, no value is needed
                         if (filter.operator === "notempty") {
                             const rowValue = row[key];
@@ -314,7 +314,7 @@
                             if (isEmpty) return false;
                             continue;
                         }
-                        
+
                         if (!filter.operator || filter.value === "") continue;
 
                         const rowValue = row[key];
