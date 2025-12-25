@@ -16,7 +16,7 @@
                     <label class="block text-sm font-medium text-slate-700 mb-2"> Paste JSON Data </label>
                     <textarea
                         id="jsonInput"
-                        rows="6"
+                        rows="4"
                         class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
                         placeholder='[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]'
                     ></textarea>
@@ -169,13 +169,13 @@
 
                 // Create header
                 tableHeader.innerHTML = `
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 tracking-wider">
+                    <th class="px-4 py-3 text-left text-xs font-medium text-slate-700 tracking-wider">
                         #
                     </th>
                     ${keys
                         .map(
                             (key) => `
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 tracking-wider">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-700 tracking-wider">
                             ${escapeHtml(key)}
                         </th>
                     `
