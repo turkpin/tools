@@ -27,12 +27,22 @@
                         class="w-full h-96 p-4 border border-slate-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                         placeholder="Enter JSON text to check for illegal escape sequences..."
                     ></textarea>
-                    <button
-                        onclick="analyzeJSON()"
-                        class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded transition"
-                    >
-                        Analyze Escape Sequences
-                    </button>
+                    <div class="flex gap-2 mt-4">
+                        <button
+                            onclick="analyzeJSON()"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded transition"
+                        >
+                            Analyze Escape Sequences
+                        </button>
+                        <button
+                            id="fixButton"
+                            onclick="fixIssues()"
+                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled
+                        >
+                            Fix Issues
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Results Section -->
@@ -91,9 +101,12 @@
         </div>
 
         <script>
+            let currentIssues = [];
+
             function analyzeJSON() {
                 const input = document.getElementById("jsonInput").value;
                 const resultsDiv = document.getElementById("results");
+                const fixButton = document.getElementById("fixButton");
 
                 if (!input.trim()) {
                     resultsDiv.innerHTML = `
@@ -101,12 +114,16 @@
                             Please enter some JSON text to analyze.
                         </p>
                     `;
+                    fixButton.disabled = true;
+                    currentIssues = [];
                     return;
                 }
 
                 const issues = findIllegalEscapeSequences(input);
+                currentIssues = issues;
 
                 if (issues.length === 0) {
+                    fixButton.disabled = true;
                     resultsDiv.innerHTML = `
                         <div class="text-center mt-20">
                             <svg class="mx-auto h-16 w-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,10 +134,14 @@
                         </div>
                     `;
                 } else {
+                    fixButton.disabled = false;
                     let html = `
                         <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded">
                             <p class="text-red-700 font-semibold">
                                 ⚠️ Found ${issues.length} illegal escape sequence${issues.length > 1 ? "s" : ""}
+                            </p>
+                            <p class="text-red-600 text-sm mt-2">
+                                Click "Fix Issues" to automatically correct these problems.
                             </p>
                         </div>
                     `;
@@ -237,6 +258,89 @@
                 return issues;
             }
 
+            function fixIssues() {
+                const input = document.getElementById("jsonInput").value;
+                const resultsDiv = document.getElementById("results");
+
+                if (currentIssues.length === 0) {
+                    return;
+                }
+
+                let fixed = fixIllegalEscapeSequences(input);
+
+                // Update the input with fixed text
+                document.getElementById("jsonInput").value = fixed;
+
+                // Show success message
+                resultsDiv.innerHTML = `
+                    <div class="text-center mt-20">
+                        <svg class="mx-auto h-16 w-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-green-600 font-semibold mt-4">Issues Fixed!</p>
+                        <p class="text-slate-600 text-sm mt-2">
+                            Fixed ${currentIssues.length} illegal escape sequence${currentIssues.length > 1 ? "s" : ""}.
+                            <br/>Illegal backslashes have been escaped.
+                        </p>
+                        <button
+                            onclick="analyzeJSON()"
+                            class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
+                        >
+                            Re-analyze
+                        </button>
+                    </div>
+                `;
+
+                currentIssues = [];
+                document.getElementById("fixButton").disabled = true;
+            }
+
+            function fixIllegalEscapeSequences(text) {
+                let result = "";
+                let inString = false;
+                let escaped = false;
+                const validEscapes = new Set(['"', "\\", "/", "b", "f", "n", "r", "t", "u"]);
+
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+
+                    if (!escaped && char === '"') {
+                        inString = !inString;
+                        result += char;
+                        continue;
+                    }
+
+                    if (inString && !escaped && char === "\\") {
+                        escaped = true;
+                        result += char;
+                        continue;
+                    }
+
+                    if (inString && escaped) {
+                        if (!validEscapes.has(char)) {
+                            // Fix: Add an extra backslash to escape the illegal escape
+                            result += "\\" + char;
+                        } else if (char === "u") {
+                            // Check if followed by exactly 4 hex digits
+                            const nextFour = text.substr(i + 1, 4);
+                            if (nextFour.length < 4 || !/^[0-9a-fA-F]{4}$/.test(nextFour)) {
+                                // Fix incomplete unicode: escape the backslash
+                                result += "\\u";
+                            } else {
+                                result += char;
+                            }
+                        } else {
+                            result += char;
+                        }
+                        escaped = false;
+                    } else {
+                        result += char;
+                    }
+                }
+
+                return result;
+            }
+
             function escapeHtml(text) {
                 const div = document.createElement("div");
                 div.textContent = text;
@@ -250,6 +354,8 @@
                         No analysis yet. Enter JSON text and click "Analyze Escape Sequences".
                     </p>
                 `;
+                document.getElementById("fixButton").disabled = true;
+                currentIssues = [];
             }
 
             // Example usage
