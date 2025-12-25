@@ -65,6 +65,27 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Text Modal -->
+            <div
+                id="textModal"
+                class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            >
+                <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] flex flex-col">
+                    <div class="flex items-center justify-between p-4 border-b border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800">Full Text</h3>
+                        <button id="closeModal" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">
+                            &times;
+                        </button>
+                    </div>
+                    <div class="p-6 overflow-y-auto flex-1">
+                        <pre
+                            id="modalText"
+                            class="whitespace-pre-wrap break-words font-mono text-sm text-slate-700"
+                        ></pre>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <script>
@@ -83,6 +104,8 @@
             let filters = {};
             let sortColumn = null;
             let sortDirection = "asc";
+            let fullTextStore = new Map();
+            let textIdCounter = 0;
 
             // Debounce function with support for dynamic delay
             function debounce(func, wait) {
@@ -401,16 +424,40 @@
                         ${columnKeys
                             .map((key) => {
                                 const value = row[key];
-                                const displayValue =
-                                    value === undefined || value === null
-                                        ? '<span class="text-red-400" title="N/A">&mdash;</span>'
-                                        : typeof value === "object"
-                                        ? `<code class="text-xs bg-slate-100 px-2 py-1 rounded">${escapeHtml(
-                                              JSON.stringify(value)
-                                          )}</code>`
-                                        : escapeHtml(String(value));
+                                let displayValue;
+                                let cellClass = "px-4 py-2 text-sm text-slate-700";
 
-                                return `<td class="px-4 py-2 text-sm text-slate-700">${displayValue}</td>`;
+                                if (value === undefined || value === null) {
+                                    displayValue = '<span class="text-red-400" title="N/A">&mdash;</span>';
+                                } else if (typeof value === "object") {
+                                    const jsonStr = JSON.stringify(value);
+                                    if (jsonStr.length > 100) {
+                                        const textId = `text-${textIdCounter++}`;
+                                        fullTextStore.set(textId, jsonStr);
+                                        displayValue = `<code class="text-xs bg-slate-100 px-2 py-1 rounded cursor-pointer hover:bg-slate-200" data-text-id="${textId}">${escapeHtml(
+                                            jsonStr.substring(0, 100)
+                                        )}...</code>`;
+                                        cellClass += " truncated-cell";
+                                    } else {
+                                        displayValue = `<code class="text-xs bg-slate-100 px-2 py-1 rounded">${escapeHtml(
+                                            jsonStr
+                                        )}</code>`;
+                                    }
+                                } else {
+                                    const strValue = String(value);
+                                    if (strValue.length > 100) {
+                                        const textId = `text-${textIdCounter++}`;
+                                        fullTextStore.set(textId, strValue);
+                                        displayValue = `<span class="cursor-pointer text-blue-600 hover:text-blue-800" data-text-id="${textId}">${escapeHtml(
+                                            strValue.substring(0, 100)
+                                        )}...</span>`;
+                                        cellClass += " truncated-cell";
+                                    } else {
+                                        displayValue = escapeHtml(strValue);
+                                    }
+                                }
+
+                                return `<td class="${cellClass}">${displayValue}</td>`;
                             })
                             .join("")}
                     </tr>
@@ -518,6 +565,51 @@
 
             jsonInput.addEventListener("input", () => {
                 fileInput.value = "";
+            });
+
+            // Modal controls
+            const textModal = document.getElementById("textModal");
+            const modalText = document.getElementById("modalText");
+            const closeModal = document.getElementById("closeModal");
+
+            // Show modal with full text
+            function showFullText(text) {
+                modalText.textContent = text;
+                textModal.classList.remove("hidden");
+            }
+
+            // Close modal
+            function hideModal() {
+                textModal.classList.add("hidden");
+                modalText.textContent = "";
+            }
+
+            closeModal.addEventListener("click", hideModal);
+
+            // Close modal when clicking outside
+            textModal.addEventListener("click", (e) => {
+                if (e.target === textModal) {
+                    hideModal();
+                }
+            });
+
+            // Close modal with Escape key
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && !textModal.classList.contains("hidden")) {
+                    hideModal();
+                }
+            });
+
+            // Delegate click events for truncated text
+            tableBody.addEventListener("click", (e) => {
+                const target = e.target.closest("[data-text-id]");
+                if (target) {
+                    const textId = target.getAttribute("data-text-id");
+                    const fullText = fullTextStore.get(textId);
+                    if (fullText !== undefined) {
+                        showFullText(fullText);
+                    }
+                }
             });
         </script>
     </body>
