@@ -82,6 +82,19 @@
             let columnKeys = [];
             let filters = {};
 
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
             // Load data from text input or file
             loadBtn.addEventListener("click", () => {
                 const textData = jsonInput.value.trim();
@@ -214,8 +227,11 @@
                         tableContainer.scrollIntoView({ behavior: "smooth", block: "center" });
                     };
 
+                    // Apply immediately on operator change
                     filterOp.addEventListener("change", applyFilters);
-                    filterVal.addEventListener("input", applyFilters);
+
+                    // Debounce input changes (300ms delay)
+                    filterVal.addEventListener("input", debounce(applyFilters, 1000));
                 });
 
                 renderTableBody(data);
