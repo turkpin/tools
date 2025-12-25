@@ -252,7 +252,13 @@
                     };
 
                     // Apply immediately on operator change
-                    filterOp.addEventListener("change", applyFilters);
+                    filterOp.addEventListener("change", () => {
+                        applyFilters();
+                        // Focus the value input if it's enabled
+                        if (!filterVal.disabled) {
+                            filterVal.focus();
+                        }
+                    });
 
                     // Apply with debounce on value input (dynamic delay based on operator)
                     filterVal.addEventListener(
