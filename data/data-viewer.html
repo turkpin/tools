@@ -209,6 +209,9 @@
                             value: filterVal.value,
                         };
                         renderTableBody(applyFilterLogic(originalData));
+                        
+                        // Scroll table into view after filtering
+                        tableContainer.scrollIntoView({ behavior: "smooth", block: "center" });
                     };
 
                     filterOp.addEventListener("change", applyFilters);
