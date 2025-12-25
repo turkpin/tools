@@ -120,9 +120,9 @@
             function renderTable(data) {
                 errorMsg.classList.add("hidden");
 
+                // If not an array, wrap it in an array
                 if (!Array.isArray(data)) {
-                    showError("Data must be an array of objects");
-                    return;
+                    data = [data];
                 }
 
                 if (data.length === 0) {
