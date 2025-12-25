@@ -149,6 +149,15 @@
                     return;
                 }
 
+                // Check if data is an array of primitives (strings, numbers, etc.)
+                const firstItem = data[0];
+                const isPrimitiveArray = typeof firstItem !== "object" || firstItem === null;
+
+                if (isPrimitiveArray) {
+                    // Convert primitives to objects with "value" property
+                    data = data.map((item) => ({ value: item }));
+                }
+
                 // Store original data
                 originalData = data;
 
