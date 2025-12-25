@@ -82,7 +82,7 @@
             let columnKeys = [];
             let filters = {};
 
-            // Debounce function
+            // Debounce function with support for dynamic delay
             function debounce(func, wait) {
                 let timeout;
                 return function executedFunction(...args) {
@@ -91,7 +91,9 @@
                         func(...args);
                     };
                     clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
+                    // If wait is a function, call it to get the delay value
+                    const delay = typeof wait === "function" ? wait() : wait;
+                    timeout = setTimeout(later, delay);
                 };
             }
 
