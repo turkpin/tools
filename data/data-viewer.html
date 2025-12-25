@@ -170,6 +170,7 @@
                                     <select id="filter-op-${index}" class="text-xs border border-slate-300 rounded px-1 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500">
                                         <option value="=">=</option>
                                         <option value="!=">≠</option>
+                                        <option value="contains">⊂</option>
                                         <option value=">">&gt;</option>
                                         <option value="<">&lt;</option>
                                         <option value=">=">&ge;</option>
@@ -292,6 +293,11 @@
                                 break;
                             case "<=":
                                 if (compareRowValue > compareFilterValue) return false;
+                                break;
+                            case "contains":
+                                const rowStr = String(rowValue || "").toLowerCase();
+                                const filterStr = String(filterValue).toLowerCase();
+                                if (!rowStr.includes(filterStr)) return false;
                                 break;
                         }
                     }
