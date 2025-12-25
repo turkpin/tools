@@ -175,6 +175,7 @@
                                         <option value="<" title="less than">&lt;</option>
                                         <option value=">=" title="greater than or equal">&ge;</option>
                                         <option value="<=" title="less than or equal">&le;</option>
+                                        <option value="empty" title="is empty or null">∅</option>
                                     </select>
                                     <input 
                                         type="text" 
@@ -195,6 +196,14 @@
                     const filterVal = document.getElementById(`filter-val-${index}`);
 
                     const applyFilters = () => {
+                        // Disable value input for empty operator
+                        if (filterOp.value === "empty") {
+                            filterVal.disabled = true;
+                            filterVal.value = "";
+                        } else {
+                            filterVal.disabled = false;
+                        }
+
                         filters[key] = {
                             operator: filterOp.value,
                             value: filterVal.value,
@@ -261,6 +270,14 @@
             function applyFilterLogic(data) {
                 return data.filter((row) => {
                     for (const [key, filter] of Object.entries(filters)) {
+                        // For empty operator, no value is needed
+                        if (filter.operator === "empty") {
+                            const rowValue = row[key];
+                            const isEmpty = rowValue === null || rowValue === undefined || rowValue === "";
+                            if (!isEmpty) return false;
+                            continue;
+                        }
+                        
                         if (!filter.operator || filter.value === "") continue;
 
                         const rowValue = row[key];
