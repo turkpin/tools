@@ -326,8 +326,9 @@
 
                         const useNumeric = !isNaN(numRowValue) && !isNaN(numFilterValue);
 
-                        const compareRowValue = useNumeric ? numRowValue : String(rowValue);
-                        const compareFilterValue = useNumeric ? numFilterValue : filterValue;
+                        // Use case-insensitive comparison for strings
+                        const compareRowValue = useNumeric ? numRowValue : String(rowValue).toLowerCase();
+                        const compareFilterValue = useNumeric ? numFilterValue : String(filterValue).toLowerCase();
 
                         switch (filter.operator) {
                             case "=":
