@@ -6,7 +6,7 @@
         <title>Data Viewer</title>
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-slate-100 p-8">
+    <body class="bg-slate-100 p-8 pb-[calc(5vh+2rem)]">
         <div class="max-w-7xl mx-auto">
             <h1 class="text-3xl font-bold text-slate-800 mb-6">Data Viewer</h1>
 
@@ -55,9 +55,9 @@
 
             <!-- Table Section -->
             <div id="tableContainer" class="bg-white rounded-lg shadow overflow-hidden hidden">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto max-h-[calc(100vh-100px)] overflow-y-auto">
                     <table id="dataTable" class="min-w-full divide-y divide-slate-200">
-                        <thead class="bg-slate-50">
+                        <thead class="bg-slate-50 sticky top-0 z-10">
                             <tr id="tableHeader"></tr>
                         </thead>
                         <tbody id="tableBody" class="bg-white divide-y divide-slate-200"></tbody>
