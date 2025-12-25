@@ -254,8 +254,11 @@
                     // Apply immediately on operator change
                     filterOp.addEventListener("change", applyFilters);
 
-                    // Debounce input changes (300ms delay)
-                    filterVal.addEventListener("input", debounce(applyFilters, 500));
+                    // Apply with debounce on value input (dynamic delay based on operator)
+                    filterVal.addEventListener(
+                        "input",
+                        debounce(applyFilters, () => (filterOp.value === "custom" ? 2000 : 500))
+                    );
                 });
 
                 renderTableBody(data);
