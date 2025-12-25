@@ -162,7 +162,7 @@
                                 const value = row[key];
                                 const displayValue =
                                     value === undefined || value === null
-                                        ? '<span class="text-slate-400">-</span>'
+                                        ? '<span class="text-red-400" title="N/A">&mdash;</span>'
                                         : typeof value === "object"
                                         ? `<code class="text-xs bg-slate-100 px-2 py-1 rounded">${escapeHtml(
                                               JSON.stringify(value)
