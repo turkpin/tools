@@ -178,6 +178,9 @@
                     .join("");
 
                 tableContainer.classList.remove("hidden");
+
+                // Scroll table into view
+                tableContainer.scrollIntoView({ behavior: "smooth", block: "start" });
             }
 
             // Show error message
