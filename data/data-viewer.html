@@ -241,7 +241,7 @@
                     filterOp.addEventListener("change", applyFilters);
 
                     // Debounce input changes (300ms delay)
-                    filterVal.addEventListener("input", debounce(applyFilters, 1000));
+                    filterVal.addEventListener("input", debounce(applyFilters, 500));
                 });
 
                 renderTableBody(data);
