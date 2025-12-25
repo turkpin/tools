@@ -188,7 +188,8 @@
                                         <option value="<" title="less than">&lt;</option>
                                         <option value=">=" title="greater than or equal">&ge;</option>
                                         <option value="<=" title="less than or equal">&le;</option>
-                                        <option value="empty" title="is empty or null">∅</option>
+                                        <option value="empty" title="is empty">∅</option>
+                                        <option value="notempty" title="is not empty">!∅</option>
                                     </select>
                                     <input 
                                         type="text" 
@@ -209,8 +210,8 @@
                     const filterVal = document.getElementById(`filter-val-${index}`);
 
                     const applyFilters = () => {
-                        // Disable value input for empty operator
-                        if (filterOp.value === "empty") {
+                        // Disable value input for empty and notempty operators
+                        if (filterOp.value === "empty" || filterOp.value === "notempty") {
                             filterVal.disabled = true;
                             filterVal.value = "";
                         } else {
@@ -294,6 +295,14 @@
                             const rowValue = row[key];
                             const isEmpty = rowValue === null || rowValue === undefined || rowValue === "";
                             if (!isEmpty) return false;
+                            continue;
+                        }
+                        
+                        // For notempty operator, no value is needed
+                        if (filter.operator === "notempty") {
+                            const rowValue = row[key];
+                            const isEmpty = rowValue === null || rowValue === undefined || rowValue === "";
+                            if (isEmpty) return false;
                             continue;
                         }
                         
