@@ -159,54 +159,51 @@
                         .join("")}
                 `;
 
-                // Create filter row - only for first column initially
+                // Create filter row - for all columns
                 filterRow.innerHTML = `
                     <th class="px-4 py-2"></th>
                     ${keys
                         .map((key, index) => {
-                            if (index === 0) {
-                                // Add filter for first column
-                                return `
-                                <th class="px-4 py-2">
-                                    <div class="flex gap-1 items-center">
-                                        <select id="filter-op-${index}" class="text-xs border border-slate-300 rounded px-1 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                            <option value="=">=</option>
-                                            <option value="!=">≠</option>
-                                            <option value=">">&gt;</option>
-                                            <option value="<">&lt;</option>
-                                            <option value=">=">&ge;</option>
-                                            <option value="<=">&le;</option>
-                                        </select>
-                                        <input 
-                                            type="text" 
-                                            id="filter-val-${index}"
-                                            placeholder="value"
-                                            class="text-xs border border-slate-300 rounded px-2 py-1 w-20 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                </th>
-                                `;
-                            } else {
-                                return `<th class="px-4 py-2"></th>`;
-                            }
+                            return `
+                            <th class="px-4 py-2">
+                                <div class="flex gap-1 items-center">
+                                    <select id="filter-op-${index}" class="text-xs border border-slate-300 rounded px-1 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <option value="=">=</option>
+                                        <option value="!=">≠</option>
+                                        <option value=">">&gt;</option>
+                                        <option value="<">&lt;</option>
+                                        <option value=">=">&ge;</option>
+                                        <option value="<=">&le;</option>
+                                    </select>
+                                    <input 
+                                        type="text" 
+                                        id="filter-val-${index}"
+                                        placeholder="value"
+                                        class="text-xs border border-slate-300 rounded px-2 py-1 w-20 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </th>
+                            `;
                         })
                         .join("")}
                 `;
 
-                // Add filter event listeners for first column
-                const filterOp = document.getElementById("filter-op-0");
-                const filterVal = document.getElementById("filter-val-0");
+                // Add filter event listeners for all columns
+                keys.forEach((key, index) => {
+                    const filterOp = document.getElementById(`filter-op-${index}`);
+                    const filterVal = document.getElementById(`filter-val-${index}`);
 
-                const applyFilters = () => {
-                    filters[keys[0]] = {
-                        operator: filterOp.value,
-                        value: filterVal.value,
+                    const applyFilters = () => {
+                        filters[key] = {
+                            operator: filterOp.value,
+                            value: filterVal.value,
+                        };
+                        renderTableBody(applyFilterLogic(originalData));
                     };
-                    renderTableBody(applyFilterLogic(originalData));
-                };
 
-                filterOp.addEventListener("change", applyFilters);
-                filterVal.addEventListener("input", applyFilters);
+                    filterOp.addEventListener("change", applyFilters);
+                    filterVal.addEventListener("input", applyFilters);
+                });
 
                 renderTableBody(data);
 
