@@ -81,6 +81,8 @@
             let originalData = [];
             let columnKeys = [];
             let filters = {};
+            let sortColumn = null;
+            let sortDirection = "asc";
 
             // Debounce function with support for dynamic delay
             function debounce(func, wait) {
@@ -174,14 +176,46 @@
                     </th>
                     ${keys
                         .map(
-                            (key) => `
-                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-700 tracking-wider">
-                            ${escapeHtml(key)}
+                            (key, index) => `
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-700 tracking-wider cursor-pointer hover:bg-slate-300 select-none" id="header-${index}" data-key="${escapeHtml(
+                                key
+                            )}">
+                            <div class="flex items-center gap-1">
+                                <span>${escapeHtml(key)}</span>
+                                <span id="sort-icon-${index}" class="text-slate-400 opacity-0">▼</span>
+                            </div>
                         </th>
                     `
                         )
                         .join("")}
                 `;
+
+                // Add sort event listeners to headers
+                keys.forEach((key, index) => {
+                    const header = document.getElementById(`header-${index}`);
+                    header.addEventListener("click", () => {
+                        // Toggle sort direction if clicking the same column
+                        if (sortColumn === key) {
+                            sortDirection = sortDirection === "asc" ? "desc" : "asc";
+                        } else {
+                            sortColumn = key;
+                            sortDirection = "asc";
+                        }
+
+                        // Update sort icons
+                        keys.forEach((_, i) => {
+                            const icon = document.getElementById(`sort-icon-${i}`);
+                            if (i === index) {
+                                icon.classList.remove("opacity-0");
+                                icon.textContent = sortDirection === "asc" ? "▲" : "▼";
+                            } else {
+                                icon.classList.add("opacity-0");
+                            }
+                        });
+
+                        renderTableBody(applyFilterLogic(originalData));
+                    });
+                });
 
                 // Create filter row - for all columns
                 filterRow.innerHTML = `
@@ -277,6 +311,34 @@
 
             // Render table body
             function renderTableBody(data) {
+                // Apply sorting if a column is selected
+                if (sortColumn !== null) {
+                    data = [...data].sort((a, b) => {
+                        const aVal = a[sortColumn];
+                        const bVal = b[sortColumn];
+
+                        // Handle null/undefined
+                        if (aVal === null || aVal === undefined) return 1;
+                        if (bVal === null || bVal === undefined) return -1;
+
+                        // Try numeric comparison
+                        const aNum = parseFloat(aVal);
+                        const bNum = parseFloat(bVal);
+
+                        if (!isNaN(aNum) && !isNaN(bNum)) {
+                            return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+                        }
+
+                        // String comparison (case-insensitive)
+                        const aStr = String(aVal).toLowerCase();
+                        const bStr = String(bVal).toLowerCase();
+
+                        if (aStr < bStr) return sortDirection === "asc" ? -1 : 1;
+                        if (aStr > bStr) return sortDirection === "asc" ? 1 : -1;
+                        return 0;
+                    });
+                }
+
                 if (data.length === 0) {
                     // Show empty state row
                     tableBody.innerHTML = `
