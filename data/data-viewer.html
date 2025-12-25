@@ -199,6 +199,7 @@
                                         <option value="<=" title="less than or equal">&le;</option>
                                         <option value="empty" title="is empty">∅</option>
                                         <option value="notempty" title="is not empty">!∅</option>
+                                        <option value="custom" title="custom expression">fx</option>
                                     </select>
                                     <input 
                                         type="text" 
@@ -225,6 +226,17 @@
                             filterVal.value = "";
                         } else {
                             filterVal.disabled = false;
+                        }
+
+                        // Make input wider for custom expressions
+                        if (filterOp.value === "custom") {
+                            filterVal.classList.remove("w-20");
+                            filterVal.classList.add("w-40");
+                            filterVal.placeholder = "row.col == value";
+                        } else if (!filterVal.disabled) {
+                            filterVal.classList.remove("w-40");
+                            filterVal.classList.add("w-20");
+                            filterVal.placeholder = "value";
                         }
 
                         filters[key] = {
@@ -312,6 +324,19 @@
                             const rowValue = row[key];
                             const isEmpty = rowValue === null || rowValue === undefined || rowValue === "";
                             if (isEmpty) return false;
+                            continue;
+                        }
+
+                        // For custom operator, evaluate JavaScript expression
+                        if (filter.operator === "custom") {
+                            if (!filter.value) continue;
+                            try {
+                                const fn = new Function("row", `return ${filter.value}`);
+                                if (!fn(row)) return false;
+                            } catch (error) {
+                                console.warn("Invalid custom filter expression:", error);
+                                // Skip invalid expressions
+                            }
                             continue;
                         }
 
