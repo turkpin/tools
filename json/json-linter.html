@@ -6,5 +6,261 @@
         <title>JSON Linter</title>
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-slate-100"></body>
+    <body class="bg-slate-100">
+        <div class="container mx-auto px-4 py-8 max-w-[1920px]]">
+            <h1 class="text-3xl font-bold text-slate-800 mb-6">JSON Escape Sequence Validator</h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Input Section -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-slate-700">JSON Input</h2>
+                        <button
+                            onclick="clearInput()"
+                            class="px-3 py-1 text-sm bg-slate-200 hover:bg-slate-300 rounded transition"
+                        >
+                            Clear
+                        </button>
+                    </div>
+                    <textarea
+                        id="jsonInput"
+                        class="w-full h-96 p-4 border border-slate-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        placeholder="Enter JSON text to check for illegal escape sequences..."
+                    ></textarea>
+                    <button
+                        onclick="analyzeJSON()"
+                        class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded transition"
+                    >
+                        Analyze Escape Sequences
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-slate-700 mb-4">Analysis Results</h2>
+                    <div id="results" class="h-96 overflow-y-auto border border-slate-300 rounded p-4 bg-slate-50">
+                        <p class="text-slate-500 text-center mt-20">
+                            No analysis yet. Enter JSON text and click "Analyze Escape Sequences".
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information Section -->
+            <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-slate-700 mb-3">Valid JSON Escape Sequences</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\"</code>
+                        <span class="text-slate-600 ml-2">Quotation mark</span>
+                    </div>
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\\</code>
+                        <span class="text-slate-600 ml-2">Backslash</span>
+                    </div>
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\/</code>
+                        <span class="text-slate-600 ml-2">Forward slash</span>
+                    </div>
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\b</code>
+                        <span class="text-slate-600 ml-2">Backspace</span>
+                    </div>
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\f</code>
+                        <span class="text-slate-600 ml-2">Form feed</span>
+                    </div>
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\n</code>
+                        <span class="text-slate-600 ml-2">Line feed</span>
+                    </div>
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\r</code>
+                        <span class="text-slate-600 ml-2">Carriage return</span>
+                    </div>
+                    <div class="text-sm">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\t</code>
+                        <span class="text-slate-600 ml-2">Tab</span>
+                    </div>
+                    <div class="text-sm col-span-2">
+                        <code class="bg-slate-100 px-2 py-1 rounded">\uXXXX</code>
+                        <span class="text-slate-600 ml-2">Unicode (4 hex digits)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function analyzeJSON() {
+                const input = document.getElementById("jsonInput").value;
+                const resultsDiv = document.getElementById("results");
+
+                if (!input.trim()) {
+                    resultsDiv.innerHTML = `
+                        <p class="text-slate-500 text-center mt-20">
+                            Please enter some JSON text to analyze.
+                        </p>
+                    `;
+                    return;
+                }
+
+                const issues = findIllegalEscapeSequences(input);
+
+                if (issues.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="text-center mt-20">
+                            <svg class="mx-auto h-16 w-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-green-600 font-semibold mt-4">No illegal escape sequences found!</p>
+                            <p class="text-slate-600 text-sm mt-2">All escape sequences are valid JSON.</p>
+                        </div>
+                    `;
+                } else {
+                    let html = `
+                        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded">
+                            <p class="text-red-700 font-semibold">
+                                ⚠️ Found ${issues.length} illegal escape sequence${issues.length > 1 ? "s" : ""}
+                            </p>
+                        </div>
+                    `;
+
+                    issues.forEach((issue, index) => {
+                        html += `
+                            <div class="mb-4 p-4 bg-white border border-red-300 rounded">
+                                <div class="flex items-start">
+                                    <span class="flex-shrink-0 inline-flex items-center justify-center h-6 w-6 rounded-full bg-red-100 text-red-600 font-semibold text-xs mr-3">
+                                        ${index + 1}
+                                    </span>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-slate-700 mb-2">
+                                            <strong>Illegal sequence:</strong> 
+                                            <code class="bg-red-100 text-red-700 px-2 py-1 rounded font-mono">${escapeHtml(
+                                                issue.sequence
+                                            )}</code>
+                                        </p>
+                                        <p class="text-sm text-slate-600 mb-2">
+                                            <strong>Position:</strong> ${issue.position}
+                                        </p>
+                                        <p class="text-sm text-slate-600 mb-2">
+                                            <strong>Context:</strong>
+                                        </p>
+                                        <pre class="bg-slate-100 p-3 rounded text-xs overflow-x-auto font-mono">${escapeHtml(
+                                            issue.context
+                                        )}</pre>
+                                        <p class="text-xs text-red-600 mt-2">
+                                            ${issue.message}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    resultsDiv.innerHTML = html;
+                }
+            }
+
+            function findIllegalEscapeSequences(text) {
+                const issues = [];
+                const lines = text.split("\n");
+
+                // Valid escape sequences in JSON
+                const validEscapes = new Set(['"', "\\", "/", "b", "f", "n", "r", "t", "u"]);
+
+                let position = 0;
+                let inString = false;
+                let escaped = false;
+                let lineNum = 1;
+                let colNum = 1;
+
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+
+                    if (char === "\n") {
+                        lineNum++;
+                        colNum = 1;
+                        inString = false; // Reset on newline (simple approach)
+                        escaped = false;
+                        continue;
+                    }
+
+                    if (!escaped && char === '"') {
+                        inString = !inString;
+                        colNum++;
+                        continue;
+                    }
+
+                    if (inString && !escaped && char === "\\") {
+                        escaped = true;
+                        colNum++;
+                        continue;
+                    }
+
+                    if (inString && escaped) {
+                        if (!validEscapes.has(char)) {
+                            // Found illegal escape sequence
+                            const sequence = "\\" + char;
+                            const contextStart = Math.max(0, i - 20);
+                            const contextEnd = Math.min(text.length, i + 20);
+                            const context = text.substring(contextStart, contextEnd);
+
+                            issues.push({
+                                sequence: sequence,
+                                position: `Line ${lineNum}, Column ${colNum}`,
+                                context: context,
+                                message: `The escape sequence '${sequence}' is not valid in JSON. Only \\", \\\\, \\/, \\b, \\f, \\n, \\r, \\t, and \\uXXXX are allowed.`,
+                            });
+                        } else if (char === "u") {
+                            // Check if followed by exactly 4 hex digits
+                            const nextFour = text.substr(i + 1, 4);
+                            if (nextFour.length < 4 || !/^[0-9a-fA-F]{4}$/.test(nextFour)) {
+                                const sequence = "\\u" + nextFour;
+                                const contextStart = Math.max(0, i - 20);
+                                const contextEnd = Math.min(text.length, i + 25);
+                                const context = text.substring(contextStart, contextEnd);
+
+                                issues.push({
+                                    sequence: sequence,
+                                    position: `Line ${lineNum}, Column ${colNum}`,
+                                    context: context,
+                                    message: `Unicode escape sequence must be followed by exactly 4 hexadecimal digits (0-9, a-f, A-F).`,
+                                });
+                            }
+                        }
+                        escaped = false;
+                    }
+
+                    colNum++;
+                }
+
+                return issues;
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function clearInput() {
+                document.getElementById("jsonInput").value = "";
+                document.getElementById("results").innerHTML = `
+                    <p class="text-slate-500 text-center mt-20">
+                        No analysis yet. Enter JSON text and click "Analyze Escape Sequences".
+                    </p>
+                `;
+            }
+
+            // Example usage
+            document.getElementById("jsonInput").value = `{
+  "valid": "This is \\"valid\\" JSON",
+  "also_valid": "Line\\nBreak and \\ttab",
+  "unicode": "\\u0041 is A",
+  "illegal1": "This has \\x invalid escape",
+  "illegal2": "Single quote \\' is not valid",
+  "illegal3": "Unicode \\u12G incomplete"
+}`;
+        </script>
+    </body>
 </html>
