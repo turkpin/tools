@@ -8,18 +8,7 @@
     </head>
     <body class="bg-slate-100 p-8 pb-[calc(10vh+4rem)]">
         <div id="appContainer" class="max-w-[1920px] mx-auto">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-3xl font-bold text-slate-800">Data Viewer</h1>
-                <button
-                    id="toggleWidthBtn"
-                    class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    title="Toggle full width"
-                >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16M7 9l-3 3 3 3m10-6l3 3-3 3"></path>
-                    </svg>
-                </button>
-            </div>
+            <h1 class="text-3xl font-bold text-slate-800 mb-6">Data Viewer</h1>
 
             <!-- Input Section -->
             <div class="bg-white rounded-lg shadow p-6 mb-12">
@@ -69,8 +58,20 @@
             ></div>
 
             <!-- Table Section -->
-            <div id="tableContainer" class="bg-white rounded-lg shadow overflow-hidden hidden">
-                <div class="overflow-x-auto max-h-[calc(90vh-100px)] overflow-y-auto">
+            <div id="tableWrapper" class="hidden">
+                <div class="flex justify-end mb-2">
+                    <button
+                        id="toggleWidthBtn"
+                        class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                        title="Toggle full width"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16M7 9l-3 3 3 3m10-6l3 3-3 3"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="tableContainer" class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto max-h-[calc(90vh-100px)] overflow-y-auto">
                     <table id="dataTable" class="min-w-full divide-y divide-slate-200">
                         <thead class="bg-white sticky top-0 z-10">
                             <tr id="tableHeader" class="bg-slate-200"></tr>
@@ -79,6 +80,7 @@
                         <tbody id="tableBody" class="bg-white divide-y divide-slate-200"></tbody>
                     </table>
                 </div>
+            </div>
             </div>
 
             <!-- Text Modal -->
@@ -109,6 +111,7 @@
             const loadBtn = document.getElementById("loadBtn");
             const clearBtn = document.getElementById("clearBtn");
             const errorMsg = document.getElementById("errorMsg");
+            const tableWrapper = document.getElementById("tableWrapper");
             const tableContainer = document.getElementById("tableContainer");
             const tableHeader = document.getElementById("tableHeader");
             const tableBody = document.getElementById("tableBody");
@@ -188,7 +191,7 @@
                 jsonInput.value = "";
                 fileInput.value = "";
                 errorMsg.classList.add("hidden");
-                tableContainer.classList.add("hidden");
+                tableWrapper.classList.add("hidden");
                 tableHeader.innerHTML = "";
                 tableBody.innerHTML = "";
             });
@@ -393,7 +396,7 @@
 
                 renderTableBody(originalData);
 
-                tableContainer.classList.remove("hidden");
+                tableWrapper.classList.remove("hidden");
 
                 // Scroll table into view
                 tableContainer.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -579,7 +582,7 @@
             function showError(message) {
                 errorMsg.textContent = message;
                 errorMsg.classList.remove("hidden");
-                tableContainer.classList.add("hidden");
+                tableWrapper.classList.add("hidden");
             }
 
             // Escape HTML to prevent XSS
