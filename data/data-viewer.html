@@ -7,8 +7,19 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="bg-slate-100 p-8 pb-[calc(10vh+4rem)]">
-        <div class="max-w-[1920px] mx-auto">
-            <h1 class="text-3xl font-bold text-slate-800 mb-6">Data Viewer</h1>
+        <div id="appContainer" class="max-w-[1920px] mx-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-slate-800">Data Viewer</h1>
+                <button
+                    id="toggleWidthBtn"
+                    class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Toggle full width"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16M7 9l-3 3 3 3m10-6l3 3-3 3"></path>
+                    </svg>
+                </button>
+            </div>
 
             <!-- Input Section -->
             <div class="bg-white rounded-lg shadow p-6 mb-12">
@@ -106,6 +117,22 @@
             let sortDirection = "asc";
             let fullTextStore = new Map();
             let textIdCounter = 0;
+            let isFullWidth = false;
+
+            // Toggle full width
+            const toggleWidthBtn = document.getElementById("toggleWidthBtn");
+            const appContainer = document.getElementById("appContainer");
+
+            toggleWidthBtn.addEventListener("click", () => {
+                isFullWidth = !isFullWidth;
+                if (isFullWidth) {
+                    appContainer.classList.remove("max-w-[1920px]");
+                    appContainer.classList.add("max-w-full");
+                } else {
+                    appContainer.classList.remove("max-w-full");
+                    appContainer.classList.add("max-w-[1920px]");
+                }
+            });
 
             // Debounce function with support for dynamic delay
             function debounce(func, wait) {
