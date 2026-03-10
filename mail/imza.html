@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Turkpin E-posta İmza Oluşturucu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1em;
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #999;
+            box-shadow: none;
+        }
+
+        .template-selector {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .template-selector label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .template-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .template-option {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .template-option:hover {
+            border-color: #999;
+        }
+
+        .template-option.active {
+            border-color: #333;
+            background: #333;
+            color: white;
+        }
+
+        .template-option .template-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .template-option .template-desc {
+            font-size: 0.75em;
+            opacity: 0.8;
+        }
+
+        .preview-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .preview-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .preview-box {
+            background: #fafafa;
+            padding: 30px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: #333;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #555;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            font-size: 14px;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .signature-output {
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .template-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-text {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: #666;
+            border-left: 3px solid #ddd;
+        }
+
+        .input-error {
+            border-color: #dc3545 !important;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8em;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .validation-summary {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .validation-summary.show {
+            display: block;
+        }
+
+        .validation-summary ul {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+
+        .validation-summary li {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Turkpin E-posta İmza Oluşturucu</h1>
+            <p>Personel bilgilerinizi girerek kurumsal e-posta imzanızı oluşturun</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>Bilgileriniz</h2>
+
+                <div class="template-selector">
+                    <label>İmza Şablonu Seçin:</label>
+                    <div class="template-options">
+                        <div
+                            class="template-option"
+                            data-template="minimal"
+                            onclick="selectTemplate('minimal')"
+                        >
+                            <div class="template-name">Minimal</div>
+                            <div class="template-desc">Sadece temel bilgiler</div>
+                        </div>
+                        <div
+                            class="template-option active"
+                            data-template="full"
+                            onclick="selectTemplate('full')"
+                        >
+                            <div class="template-name">Full</div>
+                            <div class="template-desc">Tam detaylı imza</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="signatureForm">
+                    <div
+                        class="validation-summary"
+                        id="validationSummary"
+                    >
+                        <strong>⚠️ Lütfen aşağıdaki hataları düzeltin:</strong>
+                        <ul id="validationList"></ul>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName">Ad Soyad *</label>
+                        <input
+                            type="text"
+                            id="fullName"
+                            placeholder="Örn: Oktay Aydogan"
+                            required
+                        >
+                        <div
+                            class="error-message"
+                            id="fullNameError"
+                        ></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jobTitle">Görev/Ünvan *</label>
+                        <input
+                            type="text"
+                            id="jobTitle"
+                            placeholder="Örn: IT Manager"
+                            required
+                        >
+                        <div
+                            class="error-message"
+                            id="jobTitleError"
+                        ></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Telefon *</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            placeholder="Örn: +90 543 303 31 08"
+                            required
+                        >
+                        <div
+                            class="error-message"
+                            id="phoneError"
+                        ></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-posta *</label>
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="Örn: isim@turkpin.com"
+                            required
+                        >
+                        <div
+                            class="error-message"
+                            id="emailError"
+                        ></div>
+                    </div>
+                </form>
+
+                <div class="info-text">
+                    <strong>İpucu:</strong> Bilgiler girerken imza önizlemesi otomatik olarak güncellenir.
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2>İmza Önizleme</h2>
+                <div
+                    class="preview-box"
+                    id="signaturePreview"
+                >
+                    <!-- İmza buraya oluşturulacak -->
+                </div>
+
+                <div class="button-group">
+                    <button
+                        class="btn btn-primary"
+                        onclick="copySignature()"
+                    >
+                        HTML Kopyala
+                    </button>
+                    <button
+                        class="btn btn-secondary"
+                        onclick="copyPlainText()"
+                    >
+                        Düz Metin Kopyala
+                    </button>
+                </div>
+
+                <div class="info-text">
+                    <strong>📧 Gmail İçin:</strong><br>
+                    1. Sağ üst köşedeki ⚙️ (Ayarlar) simgesine tıklayın<br>
+                    2. "Tüm ayarları göster" seçeneğine tıklayın<br>
+                    3. "Genel" sekmesinde "İmza" bölümüne gidin<br>
+                    4. "+ Yeni oluştur" butonuna basın, bir isim verin<br>
+                    5. "HTML Kopyala" butonuna tıklayın<br>
+                    6. İmza kutusuna sağ tıklayıp "Yapıştır" seçin<br>
+                    7. En altta "Değişiklikleri kaydet" butonuna tıklayın<br>
+                    <br>
+                    <strong>📨 Outlook (Masaüstü) İçin:</strong><br>
+                    1. Sol üst köşeden "Dosya" menüsüne tıklayın<br>
+                    2. "Seçenekler" butonuna basın<br>
+                    3. Sol menüden "Posta" seçin<br>
+                    4. "İmzalar..." butonuna tıklayın<br>
+                    5. "Yeni" butonuna tıklayıp imzanıza bir isim verin<br>
+                    6. "HTML Kopyala" butonuna tıklayın<br>
+                    7. İmza düzenleme kutusuna sağ tıklayıp "Yapıştır" seçin<br>
+                    8. "Tamam" butonlarına basarak kaydedin<br>
+                    <br>
+                    <strong>🌐 Outlook Web (Tarayıcı) İçin:</strong><br>
+                    1. Sağ üst köşedeki ⚙️ (Ayarlar) simgesine tıklayın<br>
+                    2. "Posta" → "Oluştur ve yanıtla" seçeneğine gidin<br>
+                    3. "E-posta imzası" bölümünü bulun<br>
+                    4. "HTML Kopyala" butonuna tıklayın<br>
+                    5. İmza kutusuna sağ tıklayıp "Yapıştır" seçin<br>
+                    6. "Kaydet" butonuna tıklayın
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="notification"
+        id="notification"
+    >
+        İmza başarıyla kopyalandı!
+    </div>
+
+    <!-- Gizli HTML çıktısı -->
+    <div
+        class="signature-output"
+        id="signatureOutput"
+    ></div>
+
+    <script>
+        // Form elementlerini al
+        const fullNameInput = document.getElementById('fullName');
+        const jobTitleInput = document.getElementById('jobTitle');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+
+        // Varsayılan değerler
+        fullNameInput.value = 'Oktay Aydogan';
+        jobTitleInput.value = 'IT Manager';
+        phoneInput.value = '+90 543 303 31 08';
+        emailInput.value = 'oktay@turkpin.com';
+
+        // Aktif şablon
+        let currentTemplate = 'full';
+
+        // Şablon seçimi
+        function selectTemplate(template) {
+            currentTemplate = template;
+
+            // Aktif sınıfı güncelle
+            document.querySelectorAll('.template-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-template="${template}"]`).classList.add('active');
+
+            // İmzayı yeniden oluştur
+            generateSignature();
+        }
+
+        // MINIMAL şablon
+        function generateMinimalSignature(fullName, jobTitle, phone, email) {
+            return `<div style="font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#444;">
+    <div style="margin-bottom:8px;">
+        <strong style="font-size:16px;">${fullName}</strong>
+    </div>
+    <div style="margin-bottom:8px;">${jobTitle}</div>
+    <div style="color:#666;">
+        <div>T: ${phone}</div>
+        <div>E: <a href="mailto:${email}" style="color:#444;text-decoration:none;">${email}</a></div>
+    </div>
+    <div style="margin-top:12px;">
+        <a href="https://www.turkpin.com" style="color:rgb(189,39,45);text-decoration:none;font-weight:600;">www.turkpin.com</a>
+    </div>
+</div>`;
+        }
+
+        // FULL şablon (mevcut)
+        function generateFullSignature(fullName, jobTitle, phone, email) {
+            return `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;color:#444;font-size:14px;font-family:Arial, Helvetica, sans-serif;">
+    <tbody>
+        <tr>
+            <td valign="top" style="padding:0 15px 0 0;border-right:2px solid rgb(189,39,45);text-align:right;vertical-align:top;">
+                <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;margin-left:auto;">
+                    <tbody>
+                        <tr>
+                            <td valign="top" align="right" style="padding:0;height:55px;font-family:Arial, Helvetica, sans-serif;">
+                                <span style="font-size:14pt;font-weight:bold;">${fullName}</span><br>
+                                <span style="font-size:10pt;">${jobTitle}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="right" style="padding:0;height:40px;font-family:Arial, Helvetica, sans-serif;">
+                                <span style="font-size:10pt;">GSM: ${phone}</span><br>
+                                <span style="font-size:10pt;">
+                                    Email: <a href="mailto:${email}" style="text-decoration:none;color:#444;">${email}</a>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="middle" align="right" style="padding:0;height:20px;font-size:0;line-height:0;">
+                                <a href="https://www.facebook.com/Turkpin" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;margin-left:4px;">
+                                    <img src="https://assets.turkpin.com/i/mail/facebook.svg" width="19" height="19" alt="facebook" style="border:0;display:block;">
+                                </a><a href="https://x.com/turkpin" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;margin-left:4px;">
+                                    <img src="https://assets.turkpin.com/i/mail/x.svg" width="19" height="19" alt="x" style="border:0;display:block;">
+                                </a><a href="https://www.linkedin.com/company/turkpin" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;margin-left:4px;">
+                                    <img src="https://assets.turkpin.com/i/mail/linkedin.svg" width="19" height="19" alt="linkedin" style="border:0;display:block;">
+                                </a><a href="https://www.youtube.com/channel/UCzunyLUqbiysfHZnqGBHc4A" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;margin-left:4px;">
+                                    <img src="https://assets.turkpin.com/i/mail/youtube.svg" width="19" height="19" alt="youtube" style="border:0;display:block;">
+                                </a><a href="https://www.instagram.com/turkpin" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;margin-left:4px;">
+                                    <img src="https://assets.turkpin.com/i/mail/instagram.svg" width="19" height="19" alt="instagram" style="border:0;display:block;">
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td valign="top" style="padding:0 0 0 15px;font-size:1pt;vertical-align:top;">
+                <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;">
+                    <tbody>
+                        <tr>
+                            <td valign="top" style="padding:0;height:55px;">
+                                <img src="https://assets.turkpin.com/i/mail/logo.svg" width="200" height="58" alt="Turkpin">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" style="padding:0;height:40px;font-family:Arial, Helvetica, sans-serif;">
+                                <span style="font-size:10pt;">TRKPN BILISIM LIMITED SIRKETI</span><br>
+                                <span style="font-size:10pt;">Altınova İstanbul Cd. No: 428/47 Hitit Plaza Osmangazi BURSA</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="middle" style="padding:0;height:20px;">
+                                <a href="https://www.turkpin.com" target="_blank" rel="noopener" style="color:rgb(189,39,45);font-size:10pt;font-family:Arial, Helvetica, sans-serif;text-decoration:none;">
+                                    www.turkpin.com
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>`;
+        }
+
+        // İmza oluşturma fonksiyonu
+        function generateSignature() {
+            const fullName = fullNameInput.value || 'Ad Soyad';
+            const jobTitle = jobTitleInput.value || 'Görev';
+            const phone = phoneInput.value || 'Telefon';
+            const email = emailInput.value || 'email@turkpin.com';
+
+            let signatureHTML = '';
+
+            switch (currentTemplate) {
+                case 'minimal':
+                    signatureHTML = generateMinimalSignature(fullName, jobTitle, phone, email);
+                    break;
+                case 'full':
+                    signatureHTML = generateFullSignature(fullName, jobTitle, phone, email);
+                    break;
+            }
+
+            // Önizlemeyi güncelle
+            document.getElementById('signaturePreview').innerHTML = signatureHTML;
+
+            // Gizli çıktıyı güncelle
+            document.getElementById('signatureOutput').innerHTML = signatureHTML;
+        }
+
+        // HTML kopyalama fonksiyonu
+        function copySignature() {
+            // Önce doğrula
+            if (!validateAllFields()) {
+                showNotification('Lütfen tüm alanları doğru şekilde doldurun');
+                return;
+            }
+
+            const signatureHTML = document.getElementById('signatureOutput').innerHTML;
+
+            // Clipboard API kullanarak HTML'i kopyala
+            const blob = new Blob([signatureHTML], { type: 'text/html' });
+            const clipboardItem = new ClipboardItem({
+                'text/html': blob,
+                'text/plain': new Blob([signatureHTML], { type: 'text/plain' })
+            });
+
+            navigator.clipboard.write([clipboardItem]).then(() => {
+                showNotification('İmza kopyalandı');
+            }).catch(() => {
+                // Fallback yöntemi
+                fallbackCopyHTML(signatureHTML);
+            });
+        }
+
+        // Fallback kopyalama
+        function fallbackCopyHTML(html) {
+            const textarea = document.createElement('textarea');
+            textarea.value = html;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showNotification('İmza kopyalandı');
+        }
+
+        // Düz metin kopyalama
+        function copyPlainText() {
+            // Önce doğrula
+            if (!validateAllFields()) {
+                showNotification('Lütfen tüm alanları doğru şekilde doldurun');
+                return;
+            }
+
+            const fullName = fullNameInput.value;
+            const jobTitle = jobTitleInput.value;
+            const phone = phoneInput.value;
+            const email = emailInput.value;
+
+            const plainText = `${fullName}
+${jobTitle}
+
+GSM: ${phone}
+Email: ${email}
+
+TRKPN BILISIM LIMITED SIRKETI
+Altınova İstanbul Cd. No: 428/47 Hitit Plaza Osmangazi BURSA
+www.turkpin.com`;
+
+            navigator.clipboard.writeText(plainText).then(() => {
+                showNotification('Düz metin kopyalandı');
+            });
+        }
+
+        // Bildirim göster
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Doğrulama fonksiyonları
+        function validateFullName(value) {
+            if (!value || value.trim().length === 0) {
+                return 'Ad Soyad alanı boş bırakılamaz';
+            }
+            if (value.trim().length < 3) {
+                return 'Ad Soyad en az 3 karakter olmalıdır';
+            }
+            if (!/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/.test(value)) {
+                return 'Ad Soyad sadece harf içermelidir';
+            }
+            return null;
+        }
+
+        function validateJobTitle(value) {
+            if (!value || value.trim().length === 0) {
+                return 'Görev/Ünvan alanı boş bırakılamaz';
+            }
+            if (value.trim().length < 2) {
+                return 'Görev/Ünvan en az 2 karakter olmalıdır';
+            }
+            return null;
+        }
+
+        function validatePhone(value) {
+            if (!value || value.trim().length === 0) {
+                return 'Telefon alanı boş bırakılamaz';
+            }
+            // Türkiye telefon formatları: +90 5XX XXX XX XX, 0 5XX XXX XX XX, 5XXXXXXXXX
+            const phoneRegex = /^(\+90|0)?[\s]?[5][0-9]{2}[\s]?[0-9]{3}[\s]?[0-9]{2}[\s]?[0-9]{2}$/;
+            if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+                return 'Geçerli bir Türkiye telefon numarası girin (Örn: +90 543 303 31 08)';
+            }
+            return null;
+        }
+
+        function validateEmail(value) {
+            if (!value || value.trim().length === 0) {
+                return 'E-posta alanı boş bırakılamaz';
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                return 'Geçerli bir e-posta adresi girin (Örn: isim@turkpin.com)';
+            }
+            if (!value.toLowerCase().includes('@turkpin.com')) {
+                return 'E-posta adresi @turkpin.com ile bitmelidir';
+            }
+            return null;
+        }
+
+        // Hata gösterme fonksiyonu
+        function showError(inputId, errorMessage) {
+            const input = document.getElementById(inputId);
+            const errorDiv = document.getElementById(inputId + 'Error');
+
+            input.classList.add('input-error');
+            errorDiv.textContent = errorMessage;
+            errorDiv.classList.add('show');
+        }
+
+        // Hata temizleme fonksiyonu
+        function clearError(inputId) {
+            const input = document.getElementById(inputId);
+            const errorDiv = document.getElementById(inputId + 'Error');
+
+            input.classList.remove('input-error');
+            errorDiv.classList.remove('show');
+        }
+
+        // Tüm alanları doğrula
+        function validateAllFields() {
+            const errors = [];
+
+            const fullNameError = validateFullName(fullNameInput.value);
+            const jobTitleError = validateJobTitle(jobTitleInput.value);
+            const phoneError = validatePhone(phoneInput.value);
+            const emailError = validateEmail(emailInput.value);
+
+            // Tüm hataları temizle
+            clearError('fullName');
+            clearError('jobTitle');
+            clearError('phone');
+            clearError('email');
+
+            // Hataları göster
+            if (fullNameError) {
+                showError('fullName', fullNameError);
+                errors.push(fullNameError);
+            }
+            if (jobTitleError) {
+                showError('jobTitle', jobTitleError);
+                errors.push(jobTitleError);
+            }
+            if (phoneError) {
+                showError('phone', phoneError);
+                errors.push(phoneError);
+            }
+            if (emailError) {
+                showError('email', emailError);
+                errors.push(emailError);
+            }
+
+            // Özet hata mesajı
+            const validationSummary = document.getElementById('validationSummary');
+            const validationList = document.getElementById('validationList');
+
+            if (errors.length > 0) {
+                validationList.innerHTML = errors.map(err => `<li>${err}</li>`).join('');
+                validationSummary.classList.add('show');
+                return false;
+            } else {
+                validationSummary.classList.remove('show');
+                return true;
+            }
+        }
+
+        // Input değişikliklerini dinle ve doğrula
+        fullNameInput.addEventListener('input', function () {
+            clearError('fullName');
+            document.getElementById('validationSummary').classList.remove('show');
+            generateSignature();
+        });
+
+        jobTitleInput.addEventListener('input', function () {
+            clearError('jobTitle');
+            document.getElementById('validationSummary').classList.remove('show');
+            generateSignature();
+        });
+
+        phoneInput.addEventListener('input', function () {
+            clearError('phone');
+            document.getElementById('validationSummary').classList.remove('show');
+            generateSignature();
+        });
+
+        emailInput.addEventListener('input', function () {
+            clearError('email');
+            document.getElementById('validationSummary').classList.remove('show');
+            generateSignature();
+        });
+
+        // Blur olaylarında doğrulama yap
+        fullNameInput.addEventListener('blur', function () {
+            const error = validateFullName(this.value);
+            if (error) {
+                showError('fullName', error);
+            }
+        });
+
+        jobTitleInput.addEventListener('blur', function () {
+            const error = validateJobTitle(this.value);
+            if (error) {
+                showError('jobTitle', error);
+            }
+        });
+
+        phoneInput.addEventListener('blur', function () {
+            const error = validatePhone(this.value);
+            if (error) {
+                showError('phone', error);
+            }
+        });
+
+        emailInput.addEventListener('blur', function () {
+            const error = validateEmail(this.value);
+            if (error) {
+                showError('email', error);
+            }
+        });
+
+        // Sayfa yüklendiğinde imzayı oluştur
+        generateSignature();
+    </script>
+</body>
+
+</html>
