@@ -1,145 +1,165 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="h-full overflow-hidden">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>INSERT → UPDATE Dönüştürücü</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg:       '#0d0d0f',
+            surface:  '#141417',
+            surface2: '#1c1c21',
+            border:   '#2a2a32',
+            accent:   '#f0c040',
+            accent2:  '#e07030',
+            muted:    '#666680',
+            green:    '#3ddc84',
+            red:      '#ff5050',
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+            syne: ['Syne', 'sans-serif'],
+          },
+          borderRadius: {
+            DEFAULT: '8px',
+          },
+        },
+      },
+    };
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0d0d0f; --surface: #141417; --surface2: #1c1c21;
-      --border: #2a2a32; --accent: #f0c040; --accent2: #e07030;
-      --text: #e8e8f0; --muted: #666680; --green: #3ddc84;
-      --red: #ff5050; --radius: 8px;
-    }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; }
+    html, body { height: 100%; overflow: hidden; }
+
     body::before {
       content: ''; position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 999; opacity: 0.6;
     }
-    .header {
-      padding: 2.5rem 3rem 1.5rem; border-bottom: 1px solid var(--border);
-      display: flex; align-items: baseline; gap: 1rem; position: relative;
+
+    .header-underline::after {
+      content: ''; position: absolute; bottom: -1px; left: 3rem;
+      width: 80px; height: 2px; background: #f0c040;
     }
-    .header::after { content: ''; position: absolute; bottom: -1px; left: 3rem; width: 80px; height: 2px; background: var(--accent); }
-    .header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
-    .header h1 span { color: var(--accent); }
-    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase; }
-    .main { display: grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 80px); }
-    .panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-    .panel:last-child { border-right: none; }
-    .panel-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface); flex-shrink: 0; }
-    .panel-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-    .panel-label .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent2); animation: pulse 2s ease-in-out infinite; }
-    .panel-label .dot.green { background: var(--green); }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-    .panel-actions { display: flex; gap: 8px; }
-    .btn { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.5px; padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s ease; background: var(--surface2); color: var(--muted); }
-    .btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(240,192,64,0.06); }
-    .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
-    .btn.primary:hover { background: #ffd060; }
-    .btn.danger:hover { border-color: var(--red); color: var(--red); background: rgba(255,80,80,0.06); }
-    .options-bar { padding: 0.6rem 1.5rem; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1.5rem; flex-shrink: 0; flex-wrap: wrap; }
-    .opt-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; transition: color 0.15s; }
-    .opt-label:hover { color: var(--text); }
-    .opt-label input[type="text"] { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; padding: 3px 8px; border-radius: 4px; width: 110px; outline: none; transition: border-color 0.15s; }
-    .opt-label input[type="text"]:focus { border-color: var(--accent); }
-    .opt-label input[type="checkbox"] { accent-color: var(--accent); width: 12px; height: 12px; cursor: pointer; }
-    .separator { width: 1px; height: 16px; background: var(--border); }
-    textarea { flex: 1; background: var(--bg); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.7; padding: 1.5rem; border: none; outline: none; resize: none; tab-size: 2; caret-color: var(--accent); width: 100%; }
-    textarea::placeholder { color: var(--muted); opacity: 0.5; font-size: 0.75rem; }
-    textarea::-webkit-scrollbar { width: 6px; }
-    textarea::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    .output-wrap { flex: 1; overflow-y: auto; }
-    .output-area { min-height: 100%; background: var(--bg); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.7; padding: 1.5rem; white-space: pre-wrap; word-break: break-all; color: var(--text); }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.8); }
+    }
+    .dot-pulse { animation: pulse-dot 2s ease-in-out infinite; }
+
+    textarea { caret-color: #f0c040; tab-size: 2; }
+    textarea::placeholder { color: #666680; opacity: 0.5; font-size: 0.75rem; }
+    textarea::-webkit-scrollbar,
     .output-wrap::-webkit-scrollbar { width: 6px; }
-    .output-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    .output-area .kw { color: #c792ea; }
-    .output-area .tbl { color: var(--accent); font-weight: 600; }
-    .output-area .val { color: var(--green); }
-    .output-area .punct { color: var(--muted); }
-    .output-area .where-kw { color: var(--accent2); font-weight: 600; }
-    .output-area .cmt { color: var(--muted); font-style: italic; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; color: var(--muted); }
-    .empty-state .icon { font-size: 2.5rem; opacity: 0.3; }
-    .empty-state p { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.5; }
-    .status-bar { height: 28px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 1.5rem; gap: 1.5rem; flex-shrink: 0; }
-    .status-item { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); }
-    .status-item strong { color: var(--accent); font-weight: 700; }
-    .status-item.ok strong { color: var(--green); }
-    .status-item.err strong { color: var(--red); }
-    .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--accent); color: #000; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; padding: 10px 24px; border-radius: var(--radius); opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 1000; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    textarea::-webkit-scrollbar-thumb,
+    .output-wrap::-webkit-scrollbar-thumb { background: #2a2a32; border-radius: 3px; }
+
+    .output-area .kw       { color: #c792ea; }
+    .output-area .tbl      { color: #f0c040; font-weight: 600; }
+    .output-area .val      { color: #3ddc84; }
+    .output-area .punct    { color: #666680; }
+    .output-area .where-kw { color: #e07030; font-weight: 600; }
+    .output-area .cmt      { color: #666680; font-style: italic; }
+
     @media (max-width: 900px) {
-      .main { grid-template-columns: 1fr; height: auto; }
-      .panel { border-right: none; border-bottom: 1px solid var(--border); min-height: 42vh; }
-      textarea, .output-area { font-size: 0.72rem; }
-      .header { padding: 1.5rem; }
+      .main-grid { grid-template-columns: 1fr !important; height: auto !important; }
+      .panel { border-right: none !important; border-bottom: 1px solid #2a2a32; min-height: 42vh; }
+      textarea, .output-area { font-size: 0.72rem !important; }
+      .header-pad { padding: 1.5rem !important; }
     }
   </style>
 </head>
-<body>
+<body class="bg-bg text-[#e8e8f0] font-syne overflow-hidden h-full flex flex-col">
 
-<header class="header">
-  <h1>INSERT <span>→</span> UPDATE</h1>
-  <span class="badge">SQL Tool</span>
+<header class="header-pad header-underline relative flex items-baseline gap-4 px-12 pt-10 pb-6 border-b border-border flex-shrink-0">
+  <h1 class="text-[1.6rem] font-extrabold tracking-tight">INSERT <span class="text-accent">→</span> UPDATE</h1>
+  <span class="font-mono text-[0.65rem] font-semibold text-muted bg-surface2 border border-border px-2 py-[3px] rounded tracking-widest uppercase">SQL Tool</span>
 </header>
 
-<div class="main">
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-label"><span class="dot"></span>INSERT Sorguları</span>
-      <div class="panel-actions">
-        <button class="btn danger" onclick="clearInput()">Temizle</button>
-        <button class="btn primary" onclick="convert()">▶ Dönüştür</button>
+<div class="main-grid grid grid-cols-2 flex-1 min-h-0">
+
+  <!-- INPUT PANEL -->
+  <div class="panel flex flex-col border-r border-border">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-surface flex-shrink-0">
+      <span class="font-mono text-[0.7rem] font-semibold tracking-[2px] uppercase text-muted flex items-center gap-2">
+        <span class="dot-pulse w-[7px] h-[7px] rounded-full bg-accent2 inline-block"></span>
+        INSERT Sorguları
+      </span>
+      <div class="flex gap-2">
+        <button class="font-mono text-[0.68rem] font-semibold tracking-[0.5px] px-[14px] py-[6px] rounded border border-border bg-surface2 text-muted cursor-pointer transition-all duration-150 hover:border-red hover:text-red hover:bg-red/[0.06]" onclick="clearInput()">Temizle</button>
+        <button class="font-mono text-[0.68rem] font-bold tracking-[0.5px] px-[14px] py-[6px] rounded border border-accent bg-accent text-black cursor-pointer transition-all duration-150 hover:bg-[#ffd060]" onclick="convert()">▶ Dönüştür</button>
       </div>
     </div>
-    <div class="options-bar">
-      <label class="opt-label">
-        <input type="checkbox" id="opt_where" checked />
+
+    <div class="flex items-center gap-6 px-6 py-[0.6rem] bg-surface2 border-b border-border flex-shrink-0 flex-wrap">
+      <label class="font-mono text-[0.65rem] text-muted tracking-[0.8px] uppercase flex items-center gap-[6px] cursor-pointer select-none transition-colors duration-150 hover:text-[#e8e8f0]">
+        <input type="checkbox" id="opt_where" checked class="accent-accent w-3 h-3 cursor-pointer" />
         WHERE koşulu:
-        <input type="text" id="where_col" value="prd_id" placeholder="kolon adı" />
+        <input type="text" id="where_col" value="prd_id" placeholder="kolon adı"
+          class="bg-bg border border-border text-[#e8e8f0] font-mono text-[0.65rem] px-2 py-[3px] rounded w-[110px] outline-none transition-colors duration-150 focus:border-accent" />
       </label>
-      <span class="separator"></span>
-      <label class="opt-label"><input type="checkbox" id="opt_semicolon" checked />Noktalı virgül</label>
-      <span class="separator"></span>
-      <label class="opt-label"><input type="checkbox" id="opt_skip_where_col" checked />WHERE kolonunu SET'ten çıkar</label>
+      <span class="w-px h-4 bg-border"></span>
+      <label class="font-mono text-[0.65rem] text-muted tracking-[0.8px] uppercase flex items-center gap-[6px] cursor-pointer select-none transition-colors duration-150 hover:text-[#e8e8f0]">
+        <input type="checkbox" id="opt_semicolon" checked class="accent-accent w-3 h-3 cursor-pointer" />
+        Noktalı virgül
+      </label>
+      <span class="w-px h-4 bg-border"></span>
+      <label class="font-mono text-[0.65rem] text-muted tracking-[0.8px] uppercase flex items-center gap-[6px] cursor-pointer select-none transition-colors duration-150 hover:text-[#e8e8f0]">
+        <input type="checkbox" id="opt_skip_where_col" checked class="accent-accent w-3 h-3 cursor-pointer" />
+        WHERE kolonunu SET'ten çıkar
+      </label>
     </div>
+
     <textarea id="input" spellcheck="false"
+      class="flex-1 bg-bg text-[#e8e8f0] font-mono text-[0.8rem] leading-[1.7] p-6 border-none outline-none resize-none w-full"
       placeholder="INSERT INTO \`products\` (\`id\`, \`name\`) VALUES&#10;(1, 'Ahmet'),&#10;(2, 'Mehmet');"
       oninput="updateInputStats()"></textarea>
-    <div class="status-bar">
-      <span class="status-item">Satır: <strong id="stat_lines">0</strong></span>
-      <span class="status-item">INSERT: <strong id="stat_inserts">0</strong></span>
-      <span class="status-item">Hata: <strong id="stat_errors">0</strong></span>
+
+    <div class="h-7 bg-surface border-t border-border flex items-center px-6 gap-6 flex-shrink-0">
+      <span class="font-mono text-[0.65rem] text-muted">Satır: <strong id="stat_lines" class="text-accent font-bold">0</strong></span>
+      <span class="font-mono text-[0.65rem] text-muted">INSERT: <strong id="stat_inserts" class="text-accent font-bold">0</strong></span>
+      <span class="font-mono text-[0.65rem] text-muted">Hata: <strong id="stat_errors" class="text-accent font-bold">0</strong></span>
     </div>
   </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-label"><span class="dot green"></span>UPDATE Sorguları</span>
-      <div class="panel-actions">
-        <button class="btn" onclick="copyAll()">Kopyala</button>
-        <button class="btn danger" onclick="clearOutput()">Temizle</button>
+  <!-- OUTPUT PANEL -->
+  <div class="panel flex flex-col">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-surface flex-shrink-0">
+      <span class="font-mono text-[0.7rem] font-semibold tracking-[2px] uppercase text-muted flex items-center gap-2">
+        <span class="dot-pulse w-[7px] h-[7px] rounded-full bg-green inline-block"></span>
+        UPDATE Sorguları
+      </span>
+      <div class="flex gap-2">
+        <button class="font-mono text-[0.68rem] font-semibold tracking-[0.5px] px-[14px] py-[6px] rounded border border-border bg-surface2 text-muted cursor-pointer transition-all duration-150 hover:border-accent hover:text-accent hover:bg-accent/[0.06]" onclick="copyAll()">Kopyala</button>
+        <button class="font-mono text-[0.68rem] font-semibold tracking-[0.5px] px-[14px] py-[6px] rounded border border-border bg-surface2 text-muted cursor-pointer transition-all duration-150 hover:border-red hover:text-red hover:bg-red/[0.06]" onclick="clearOutput()">Temizle</button>
       </div>
     </div>
-    <div class="output-wrap">
-      <div class="output-area" id="output">
-        <div class="empty-state"><div class="icon">⚡</div><p>Dönüştürülmüş sorgular burada görünecek</p></div>
+
+    <div class="output-wrap flex-1 overflow-y-auto">
+      <div class="output-area min-h-full bg-bg font-mono text-[0.8rem] leading-[1.7] p-6 whitespace-pre-wrap break-all text-[#e8e8f0]" id="output">
+        <div class="flex flex-col items-center justify-center h-full gap-3 text-muted">
+          <div class="text-[2.5rem] opacity-30">⚡</div>
+          <p class="font-mono text-[0.72rem] tracking-widest uppercase opacity-50">Dönüştürülmüş sorgular burada görünecek</p>
+        </div>
       </div>
     </div>
-    <div class="status-bar">
-      <span class="status-item">Üretilen: <strong id="stat_produced">0</strong></span>
-      <span class="status-item ok">Başarılı: <strong id="stat_ok">0</strong></span>
-      <span class="status-item err">Başarısız: <strong id="stat_fail">0</strong></span>
+
+    <div class="h-7 bg-surface border-t border-border flex items-center px-6 gap-6 flex-shrink-0">
+      <span class="font-mono text-[0.65rem] text-muted">Üretilen: <strong id="stat_produced" class="text-accent font-bold">0</strong></span>
+      <span class="font-mono text-[0.65rem] text-muted">Başarılı: <strong id="stat_ok" class="text-green font-bold">0</strong></span>
+      <span class="font-mono text-[0.65rem] text-muted">Başarısız: <strong id="stat_fail" class="text-red font-bold">0</strong></span>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 translate-y-5 bg-accent text-black font-mono text-[0.72rem] font-bold tracking-widest px-6 py-[10px] rounded opacity-0 transition-all duration-200 pointer-events-none z-[1000]"></div>
 
 <script>
 'use strict';
@@ -152,14 +172,13 @@ function updateInputStats() {
   document.getElementById('stat_inserts').textContent = (val.match(/INSERT\s+INTO/gi) || []).length;
 }
 
-// ─── Read one identifier (backtick, double-quote, or bare word) ───────────
 function readIdent(s, pos) {
-  while (pos < s.length && /\s/.test(s[pos])) pos++; // skip whitespace
+  while (pos < s.length && /\s/.test(s[pos])) pos++;
   let name = '';
   if (s[pos] === '`') {
     pos++;
     while (pos < s.length && s[pos] !== '`') name += s[pos++];
-    pos++; // closing backtick
+    pos++;
   } else if (s[pos] === '"') {
     pos++;
     while (pos < s.length && s[pos] !== '"') name += s[pos++];
@@ -170,10 +189,7 @@ function readIdent(s, pos) {
   return { name, pos };
 }
 
-// ─── Read a quoted string value starting at pos (pos points to opening ') ─
-// Returns { val: "...", pos: next_pos }
 function readString(s, pos) {
-  // pos is at the opening '
   let val = "'";
   pos++;
   while (pos < s.length) {
@@ -184,7 +200,7 @@ function readString(s, pos) {
     } else if (ch === "'") {
       val += ch;
       pos++;
-      if (s[pos] === "'") { // doubled quote
+      if (s[pos] === "'") {
         val += s[pos];
         pos++;
       } else {
@@ -198,33 +214,17 @@ function readString(s, pos) {
   return { val, pos };
 }
 
-// ─── Read one value token (string, NULL, number, or expression) ───────────
-// Returns { val: string, pos: next_pos }
 function readValue(s, pos) {
-  // skip leading whitespace
   while (pos < s.length && /\s/.test(s[pos])) pos++;
-
   if (pos >= s.length) return { val: '', pos };
-
   const ch = s[pos];
-
-  if (ch === "'") {
-    return readString(s, pos);
-  }
-
-  // NULL keyword
-  if (s.substring(pos, pos + 4).toUpperCase() === 'NULL') {
-    return { val: 'NULL', pos: pos + 4 };
-  }
-
-  // Number (possibly negative)
+  if (ch === "'") return readString(s, pos);
+  if (s.substring(pos, pos + 4).toUpperCase() === 'NULL') return { val: 'NULL', pos: pos + 4 };
   let val = '';
   if (ch === '-' || ch === '+' || /\d/.test(ch)) {
     while (pos < s.length && /[-+\d.eE]/.test(s[pos])) val += s[pos++];
     return { val, pos };
   }
-
-  // Generic token (function calls etc.) — read until comma or ) at depth 0
   let depth = 0;
   while (pos < s.length) {
     const c = s[pos];
@@ -244,24 +244,18 @@ function readValue(s, pos) {
   return { val: val.trim(), pos };
 }
 
-// ─── Parse a row-values list: (v1, v2, ...) ──────────────────────────────
-// Returns { vals: [], pos } or null
 function readRowValues(s, pos) {
   while (pos < s.length && /\s/.test(s[pos])) pos++;
   if (s[pos] !== '(') return null;
-  pos++; // skip (
-
+  pos++;
   const vals = [];
   while (pos < s.length) {
-    while (pos < s.length && /\s/.test(s[pos])) pos++; // skip whitespace
-    if (s[pos] === ')') { pos++; break; } // end of row
-    if (s[pos] === ',') { pos++; continue; } // next value
-
+    while (pos < s.length && /\s/.test(s[pos])) pos++;
+    if (s[pos] === ')') { pos++; break; }
+    if (s[pos] === ',') { pos++; continue; }
     const r = readValue(s, pos);
     vals.push(r.val);
     pos = r.pos;
-
-    // skip whitespace then expect , or )
     while (pos < s.length && /\s/.test(s[pos])) pos++;
     if (s[pos] === ',') pos++;
     else if (s[pos] === ')') { pos++; break; }
@@ -269,33 +263,19 @@ function readRowValues(s, pos) {
   return { vals, pos };
 }
 
-// ─── Main parser: handles both formats:
-//   1. INSERT INTO t (cols) VALUES (r1), (r2), ...;   [multi-row]
-//   2. INSERT INTO t (cols) VALUES (r1);              [single-row, repeated]
-// Returns array of { table, cols, vals } objects
 function parseInsertBlock(raw) {
   let pos = 0;
-
-  // Skip leading whitespace
   while (pos < raw.length && /\s/.test(raw[pos])) pos++;
-
-  // Match INSERT INTO
   const insMatch = /^INSERT\s+INTO\s+/i.exec(raw.substring(pos));
   if (!insMatch) return [];
   pos += insMatch[0].length;
-
-  // Read table name
   const tbl = readIdent(raw, pos);
   if (!tbl.name) return [];
   pos = tbl.pos;
   const table = tbl.name;
-
-  // Skip whitespace
   while (pos < raw.length && /\s/.test(raw[pos])) pos++;
-
-  // Read column list
   if (raw[pos] !== '(') return [];
-  pos++; // skip (
+  pos++;
   const cols = [];
   while (pos < raw.length) {
     while (pos < raw.length && /[\s,]/.test(raw[pos])) pos++;
@@ -305,44 +285,28 @@ function parseInsertBlock(raw) {
     pos = col.pos;
   }
   if (cols.length === 0) return [];
-
-  // Skip whitespace
   while (pos < raw.length && /\s/.test(raw[pos])) pos++;
-
-  // Match VALUES keyword
   if (raw.substring(pos, pos + 6).toUpperCase() !== 'VALUES') return [];
   pos += 6;
-
-  // Read all row value groups: (v1,v2,...), (v1,v2,...), ...
   const rows = [];
   while (pos < raw.length) {
     while (pos < raw.length && /\s/.test(raw[pos])) pos++;
-    if (raw[pos] !== '(') break; // no more rows
-
+    if (raw[pos] !== '(') break;
     const row = readRowValues(raw, pos);
     if (!row) break;
     pos = row.pos;
-
-    if (row.vals.length === cols.length) {
-      rows.push({ table, cols, vals: row.vals });
-    }
-
-    // skip whitespace, then expect , (next row) or ; or end
+    if (row.vals.length === cols.length) rows.push({ table, cols, vals: row.vals });
     while (pos < raw.length && /\s/.test(raw[pos])) pos++;
     if (raw[pos] === ',') { pos++; continue; }
     break;
   }
-
   return rows;
 }
 
-// ─── Split raw SQL into individual INSERT blocks ──────────────────────────
-// Handles: semicolon-separated, multi-row VALUES, string-aware
 function splitIntoBlocks(raw) {
   const blocks = [];
   let cur = '';
   let inStr = false;
-
   for (let i = 0; i < raw.length; i++) {
     const ch = raw[i];
     if (inStr) {
@@ -358,47 +322,37 @@ function splitIntoBlocks(raw) {
         const t = cur.trim();
         if (t && /INSERT\s+INTO/i.test(t)) blocks.push(t);
         cur = '';
-      } else {
-        cur += ch;
-      }
+      } else { cur += ch; }
     }
   }
   const last = cur.trim();
   if (last && /INSERT\s+INTO/i.test(last)) blocks.push(last);
-
   if (blocks.length > 0) return blocks;
-
-  // Fallback: split on lines starting with INSERT
   return raw
     .split(/\n(?=\s*INSERT\s+INTO\s)/i)
     .map(s => s.trim())
     .filter(s => /INSERT\s+INTO/i.test(s));
 }
 
-// ─── Build UPDATE ─────────────────────────────────────────────────────────
 function buildUpdate(row, whereCol, addSemicolon, skipWhereCol) {
   const { table, cols, vals } = row;
   const whereIdx = whereCol
     ? cols.findIndex(c => c.toLowerCase() === whereCol.toLowerCase())
     : -1;
-
   const setPairs = [];
   for (let i = 0; i < cols.length; i++) {
     if (skipWhereCol && i === whereIdx) continue;
     setPairs.push('`' + cols[i] + '` = ' + vals[i]);
   }
   if (setPairs.length === 0) return null;
-
   const semi = addSemicolon ? ';' : '';
   const setClause = setPairs.join(',\n    ');
-
   if (whereIdx === -1 || !whereCol) {
     return 'UPDATE `' + table + '`\nSET\n    ' + setClause + semi;
   }
   return 'UPDATE `' + table + '`\nSET\n    ' + setClause + '\nWHERE `' + cols[whereIdx] + '` = ' + vals[whereIdx] + semi;
 }
 
-// ─── Syntax highlight ─────────────────────────────────────────────────────
 function highlight(sql) {
   const esc = sql.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   return esc
@@ -416,21 +370,17 @@ function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ─── Convert ──────────────────────────────────────────────────────────────
 function convert() {
   const raw = document.getElementById('input').value.trim();
   if (!raw) { showToast('Giriş boş!'); return; }
-
   const whereCol = document.getElementById('opt_where').checked
     ? document.getElementById('where_col').value.trim() : '';
   const addSemicolon = document.getElementById('opt_semicolon').checked;
   const skipWhereCol = document.getElementById('opt_skip_where_col').checked;
-
   const blocks = splitIntoBlocks(raw);
   let ok = 0, fail = 0;
   const parts = [];
   lastResults = [];
-
   blocks.forEach((block, bi) => {
     const rows = parseInsertBlock(block);
     if (rows.length === 0) {
@@ -452,14 +402,12 @@ function convert() {
       }
     });
   });
-
   document.getElementById('stat_produced').textContent = ok + fail;
   document.getElementById('stat_ok').textContent = ok;
   document.getElementById('stat_fail').textContent = fail;
   document.getElementById('stat_errors').textContent = fail;
-
   if (parts.length === 0) {
-    document.getElementById('output').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Geçerli INSERT sorgusu bulunamadı</p></div>';
+    document.getElementById('output').innerHTML = '<div class="flex flex-col items-center justify-center h-full gap-3 text-muted"><div class="text-[2.5rem] opacity-30">⚠️</div><p class="font-mono text-[0.72rem] tracking-widest uppercase opacity-50">Geçerli INSERT sorgusu bulunamadı</p></div>';
     return;
   }
   document.getElementById('output').innerHTML = parts.join('\n\n');
@@ -468,7 +416,7 @@ function convert() {
 
 function clearInput() { document.getElementById('input').value = ''; updateInputStats(); }
 function clearOutput() {
-  document.getElementById('output').innerHTML = '<div class="empty-state"><div class="icon">⚡</div><p>Dönüştürülmüş sorgular burada görünecek</p></div>';
+  document.getElementById('output').innerHTML = '<div class="flex flex-col items-center justify-center h-full gap-3 text-muted"><div class="text-[2.5rem] opacity-30">⚡</div><p class="font-mono text-[0.72rem] tracking-widest uppercase opacity-50">Dönüştürülmüş sorgular burada görünecek</p></div>';
   ['stat_produced','stat_ok','stat_fail'].forEach(id => document.getElementById(id).textContent = '0');
   lastResults = [];
 }
@@ -482,9 +430,13 @@ let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.classList.add('show');
+  t.classList.add('opacity-100', '!translate-y-0');
+  t.classList.remove('opacity-0', 'translate-y-5');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  toastTimer = setTimeout(() => {
+    t.classList.remove('opacity-100', '!translate-y-0');
+    t.classList.add('opacity-0', 'translate-y-5');
+  }, 2200);
 }
 
 document.addEventListener('keydown', e => {
