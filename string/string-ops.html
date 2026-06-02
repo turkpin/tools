@@ -238,6 +238,13 @@ return input.toUpperCase();</textarea>
         // Update highlighting on input
         codeInput.addEventListener('input', updateHighlight);
 
+        // Scroll into view on paste
+        codeInput.addEventListener('paste', () => {
+            setTimeout(() => {
+                codeInput.closest('.code-editor-wrapper').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 0);
+        });
+
         // Handle tab key in textarea
         codeInput.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
@@ -277,6 +284,11 @@ return input.toUpperCase();</textarea>
                 errorMessage.textContent = error.message;
                 output.textContent = '';
             }
+            
+            // Scroll output into view
+            setTimeout(() => {
+                output.closest('.flex-col').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
         });
 
         // Clear output
