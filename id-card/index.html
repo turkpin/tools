@@ -1,0 +1,3071 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>Turkpin — Personel Kimlik Kartı</title>
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+/* =============================================
+   TURKPIN PERSONEL KİMLİK KARTI — style.css
+   Layout: Form (sol) + Kart ön/arka (sağ)
+   Kart oranı: 9:6  (630×420px)
+   ============================================= */
+
+/* ─── CSS Değişkenleri ─── */
+:root {
+  --c-navy:      #0a0e1a;
+  --c-navy-mid:  #0d1220;
+  --c-panel:     #0f1422;
+  --c-surface:   #111828;
+  --c-border:    rgba(255,255,255,0.07);
+
+  --c-red:       #e63946;
+  --c-red-glow:  rgba(230,57,70,0.35);
+  --c-red-dim:   rgba(230,57,70,0.12);
+
+  --c-white:     #f0f4ff;
+  --c-gray:      #7a8499;
+  --c-gray-lt:   #9aa3b5;
+  --c-gold:      #f5c842;
+
+  --card-w: 646px;
+  --card-h: 406px;
+  --card-r: 14px;
+
+  --font-main:  'Inter', system-ui, sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+}
+
+/* ─── Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-main);
+  background: #1a1f2e;
+  color: var(--c-white);
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
+/* =============================================
+   APP LAYOUT
+   ============================================= */
+.app {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ─── FORM PANELİ (Sol) ─── */
+.form-panel {
+  width: 300px;
+  min-width: 300px;
+  background: #0c101e;
+  border-right: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 20px;
+  overflow-y: auto;
+  gap: 0;
+}
+
+/* ─── KART PANELİ (Sağ) ─── */
+.card-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px 40px;
+  background:
+    radial-gradient(ellipse at 60% 50%, rgba(230,57,70,0.05) 0%, transparent 65%),
+    #12172a;
+}
+
+/* =============================================
+   FORM PANELİ İÇERİĞİ
+   ============================================= */
+
+/* Header */
+.fp-header {
+  margin-bottom: 4px;
+}
+.fp-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.fp-logo svg:not(.fp-logo-img) {
+  width: 1.25em;
+  height: 1.25em;
+  flex-shrink: 0;
+}
+.fp-logo span {
+  font-family: var(--font-pixel);
+  font-size: 0.813em;
+  line-height: 1;
+}
+.fp-logo-img {
+  height: 1.625em;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.l-turk { color: var(--c-white); }
+.l-pin  { color: var(--c-red); }
+
+.fp-subtitle {
+  font-size: 0.625em;
+  color: var(--c-gray);
+  letter-spacing: 0.5px;
+}
+
+/* Ayırıcı */
+.fp-divider {
+  height: 1px;
+  background: var(--c-border);
+  margin: 18px 0;
+}
+
+/* ─── Fotoğraf Bölümü ─── */
+.fp-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-preview {
+  width: 130px;
+  height: 130px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(230,57,70,0.35);
+  background: var(--c-panel);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.photo-preview .default-avatar {
+  width: 90px;
+  height: 120px;
+  image-rendering: pixelated;
+}
+.photo-preview #photoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.688em;
+  font-weight: 600;
+  color: var(--c-gray-lt);
+  border: 1px solid rgba(230,57,70,0.3);
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: rgba(230,57,70,0.06);
+  letter-spacing: 0.3px;
+}
+.photo-upload-btn svg {
+  width: 0.813em;
+  height: 0.813em;
+  stroke: var(--c-red);
+}
+.photo-upload-btn:hover {
+  border-color: var(--c-red);
+  color: var(--c-white);
+  background: rgba(230,57,70,0.12);
+}
+
+.photo-clear-btn {
+  font-size: 0.625em;
+  color: var(--c-gray);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.photo-clear-btn:hover { color: var(--c-red); }
+
+/* ─── Form Alanları ─── */
+.fp-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fp-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.625em;
+  font-weight: 600;
+  color: var(--c-gray);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.fp-field label svg {
+  width: 0.813em;
+  height: 0.813em;
+  flex-shrink: 0;
+}
+.fp-field input {
+  width: 100%;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-family: var(--font-main);
+  font-size: 0.781em;
+  font-weight: 500;
+  color: var(--c-white);
+  outline: none;
+  transition: border-color 0.18s, background 0.18s;
+}
+.fp-field input::placeholder { color: var(--c-gray); }
+.fp-field input:focus {
+  border-color: rgba(230,57,70,0.55);
+  background: #141c30;
+}
+
+/* ─── Aksiyon Butonları ─── */
+.fp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.btn-flip,
+.btn-print {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-main);
+  font-size: 0.75em;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 16px;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: all 0.18s;
+}
+.btn-flip svg,
+.btn-print svg {
+  width: 0.938em;
+  height: 0.938em;
+  stroke: currentColor;
+  flex-shrink: 0;
+}
+
+.btn-flip {
+  background: var(--c-surface);
+  color: var(--c-white);
+  border: 1px solid var(--c-border);
+}
+.btn-flip:hover {
+  border-color: rgba(230,57,70,0.4);
+  background: #161e30;
+}
+
+.btn-print {
+  background: var(--c-red);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(230,57,70,0.35);
+}
+.btn-print:hover {
+  background: #ff3d4e;
+  box-shadow: 0 4px 18px rgba(230,57,70,0.45);
+}
+.btn-print:active,
+.btn-flip:active { transform: scale(0.97); }
+
+/* =============================================
+   3D FLIP KART SAHNESI
+   ============================================= */
+.card-scene {
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+}
+
+.card-flipper {
+  position: relative;
+  width: var(--card-w);
+  height: var(--card-h);
+  transform-style: preserve-3d;
+  transition: transform 0.72s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-flipper.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Kart yüzleri ortak */
+.id-card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-r);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  --c-white:    #1a1e2e;
+  --c-gray:     #64748b;
+  --c-gray-lt:  #94a3b8;
+  --c-border:   rgba(0,0,0,0.07);
+
+  background: #ffffff;
+  border: 1px solid rgba(230,57,70,0.2);
+
+  box-shadow:
+    0 2px 4px   rgba(0,0,0,0.06),
+    0 8px 28px  rgba(0,0,0,0.12),
+    0 28px 70px rgba(0,0,0,0.14),
+    0 0 0 1px   rgba(230,57,70,0.08) inset;
+
+  overflow: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.id-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 0;
+}
+.id-card::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(230,57,70,0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Köşe Piksel Aksanları ─── */
+.px-c { display: none; }
+
+/* ─── Neon Kenar ─── */
+.edge { position: absolute; pointer-events: none; z-index: 5; }
+.edge-top {
+  top: 0; left: 14px; right: 14px; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--c-red) 30%, var(--c-red) 70%, transparent 100%);
+  opacity: 0.5;
+}
+.edge-left {
+  top: 14px; bottom: 14px; left: 0; width: 1px;
+  background: linear-gradient(180deg, transparent 0%, var(--c-red) 40%, transparent 100%);
+  opacity: 0.28;
+}
+
+/* =============================================
+   ÖN YÜZ — CARD-FRONT
+   ============================================= */
+.card-front {
+  padding: 22px 28px 16px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-icon { width: 1.375em; height: 1.375em; flex-shrink: 0; }
+.logo-img {
+  height: 2.625em;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.logo-text {
+  font-family: var(--font-pixel);
+  font-size: 1em;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.card-badge {
+  font-size: 1em;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: var(--c-gray);
+  text-transform: uppercase;
+  border: 1px solid rgba(230,57,70,0.2);
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: rgba(230,57,70,0.05);
+}
+
+.h-divider {
+  position: relative; z-index: 2;
+  display: flex; align-items: center;
+  margin: 10px 0 14px 0;
+  flex-shrink: 0;
+}
+.hd-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(230,57,70,0.35) 40%, rgba(230,57,70,0.35) 60%, transparent);
+}
+.hd-rhombus {
+  font-size: 0.438em; color: var(--c-red);
+  margin: 0 6px; opacity: 0.8;
+}
+
+.card-body {
+  position: relative; z-index: 2;
+  display: flex; align-items: stretch;
+  gap: 28px; flex: 1; min-height: 0;
+}
+
+.card-left {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.avatar-outer { position: relative; }
+.avatar-frame {
+  position: relative;
+  width: 185px; height: 185px;
+  border-radius: 10px; overflow: hidden;
+  border: 1.5px solid rgba(230,57,70,0.5);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 4px 16px rgba(0,0,0,0.35);
+}
+.avatar-svg {
+  width: 100%; height: 100%; display: block;
+  image-rendering: pixelated;
+}
+.avatar-photo {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: top;
+  display: block;
+}
+.avatar-glow-ring {
+  position: absolute; inset: -4px;
+  border-radius: 13px;
+  border: 1px solid rgba(230,57,70,0.14);
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(230,57,70,0.1);
+}
+
+.card-right {
+  flex: 1; display: flex; align-items: center;
+}
+.info-list {
+  width: 100%; display: flex; flex-direction: column;
+}
+.info-row {
+  display: flex; align-items: center;
+  gap: 14px; padding: 14px 0;
+}
+.info-icon {
+  flex-shrink: 0;
+  width: 2em; height: 2em;
+  border-radius: 7px;
+  background: rgba(230,57,70,0.08);
+  border: 1px solid rgba(230,57,70,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.info-icon svg { width: 1em; height: 1em; }
+.info-text { display: flex; flex-direction: column; gap: 3px; }
+.info-label {
+  font-size: 0.7em;
+  font-weight: 500;
+  color: var(--c-gray);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.info-value {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--c-white);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.info-sep {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.07), rgba(0,0,0,0.02));
+  margin: 0 0 0 46px;
+}
+
+.card-footer {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.07);
+}
+.game-strip {
+  display: flex; align-items: center; gap: 8px; opacity: 0.7;
+}
+.gi { display: block; }
+.gi-pad      { width: auto; height: 1.2em; }
+.gi-pac      { width: auto; height: 1.2em; }
+.gi-invader  { width: auto; height: 1.2em; }
+.gi-star     { width: auto; height: 1.2em; }
+.gi-pellets  { width: 2.25em; height: 0.5em; }
+.gi-mushroom { width: auto; height: 1.2em; }
+.gi-ghost    { width: auto; height: 1.2em; }
+
+.footer-center {
+  display: flex; align-items: center; gap: 6px;
+  position: absolute; left: 50%; transform: translateX(-50%);
+}
+.fc-dot { font-size: 0.313em; color: var(--c-red); opacity: 0.6; }
+.fc-url { font-size: 0.813em; font-weight: 400; color: var(--c-gray); letter-spacing: 1px; }
+.footer-right {
+  flex: 0 0 auto;
+  width: 100px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.card-id {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--c-red);
+  letter-spacing: 1px;
+  opacity: 0.85;
+  font-family: var(--font-main);
+  white-space: nowrap;
+}
+
+/* =============================================
+   ARKA YÜZ — CARD-BACK
+   ============================================= */
+.back-deco {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+}
+.deco-ghost {
+  position: absolute;
+  right: -20px; bottom: -10px;
+  width: 10em; height: 13.125em;
+}
+.deco-pacman {
+  position: absolute;
+  left: -30px; top: 40px;
+  width: 11.25em; height: 11.25em;
+}
+.deco-back-invader {
+  position: absolute;
+  right: 22px; top: 14px;
+  width: 4.5em; height: 3em;
+  opacity: 0.07;
+}
+.deco-back-star {
+  position: absolute;
+  left: 26px; top: 12px;
+  width: 3.25em; height: 3em;
+  opacity: 0.45;
+}
+.front-deco {
+  position: absolute;
+  inset: 0; z-index: 0; pointer-events: none;
+}
+.deco-front-invader {
+  position: absolute;
+  right: -18px; top: 72px;
+  width: 9.75em; height: 6.5em;
+  opacity: 0.055;
+}
+.deco-front-mushroom {
+  position: absolute;
+  left: -12px; bottom: 20px;
+  width: 6em; height: 7em;
+  opacity: 0.055;
+}
+
+.mag-strip {
+  position: relative; z-index: 2;
+  width: 100%; height: 44px;
+  background: linear-gradient(180deg, #0a0a12 0%, #06080f 100%);
+  margin-top: 28px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5) inset;
+  flex-shrink: 0;
+}
+.mag-strip::before, .mag-strip::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; height: 1px;
+  background: rgba(230,57,70,0.25);
+}
+.mag-strip::before { top: 0; }
+.mag-strip::after  { bottom: 0; }
+
+.back-content {
+  position: relative; z-index: 2;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 0 40px;
+}
+.back-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.back-logo-icon { width: 1.75em; height: 1.75em; }
+.back-logo-img {
+  width: 13.75em;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+.back-logo-text {
+  font-family: var(--font-pixel);
+  font-size: 1.25em;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.back-divider {
+  width: 100%;
+  display: flex; align-items: center; gap: 10px;
+  margin: 6px 0;
+}
+.bd-line {
+  flex: 1; height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+.bd-icon svg { width: 1.5em; height: auto; display: block; }
+
+.card-policy {
+  width: 100%;
+  display: flex; flex-direction: column;
+  gap: 8px; margin-top: 4px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 6px;
+}
+.policy-main {
+  font-size: 1em; font-weight: 400;
+  color: var(--c-gray-lt);
+  line-height: 1.65; text-align: center;
+}
+.policy-main strong { color: var(--c-white); font-weight: 600; }
+.policy-divider { height: 1px; background: rgba(255,255,255,0.07); }
+.policy-lost {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; font-size: 1em;
+  color: var(--c-gray); line-height: 1.5; flex-wrap: wrap;
+}
+.policy-lost svg { width: 0.75em; height: 0.75em; flex-shrink: 0; }
+.policy-contact { color: var(--c-red); font-weight: 600; letter-spacing: 0.3px; }
+.policy-sep { color: var(--c-gray); opacity: 0.5; }
+
+.back-footer {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 28px 14px 28px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+.back-game-icons {
+  display: flex; align-items: center; gap: 6px; opacity: 0.6;
+}
+.back-game-icons svg {
+  height: 1.2em !important;
+  width: auto !important;
+}
+.back-game-icons .bg-pellets {
+  width: 2.25em !important;
+  height: 0.5em !important;
+}
+.back-website { display: flex; align-items: center; gap: 5px; }
+.back-note {
+  font-size: 1.2em; color: var(--c-gray);
+  letter-spacing: 0.8px; opacity: 0.7;
+}
+
+.card-back {
+  display: flex; flex-direction: column; padding: 0;
+}
+.card-back .back-divider .bd-line { background: rgba(0,0,0,0.08); }
+.card-back .back-footer { border-top: 1px solid rgba(0,0,0,0.07); }
+.card-back .card-policy { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.07); }
+.card-back .policy-main { color: #475569; }
+.card-back .policy-main strong { color: #1a1e2e; }
+.card-back .policy-lost { color: #64748b; }
+.card-back .policy-divider { background: rgba(0,0,0,0.07); }
+.card-back .back-note { color: #94a3b8; }
+
+.card-side-label { display: flex; align-items: center; gap: 6px; }
+.csl-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  transition: background 0.3s;
+}
+.csl-dot.active {
+  background: var(--c-red);
+  box-shadow: 0 0 6px var(--c-red);
+}
+
+/* =============================================
+   PRINT / PDF
+   ============================================= */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  body > *:not(#print-container) { display: none !important; }
+  html { font-size: 16px !important; }
+  body, html { background: transparent !important; margin: 0 !important; padding: 0 !important; }
+  #print-container {
+    display: flex; flex-direction: row;
+    align-items: center; justify-content: center;
+    gap: 10mm; width: 297mm; height: 210mm;
+  }
+  .print-page {
+    width: 102.5mm; height: 64.5mm;
+    overflow: hidden; position: relative; flex-shrink: 0;
+  }
+  .print-page .id-card {
+    position: absolute !important;
+    top: 0 !important; left: 0 !important;
+    width: 646px !important; height: 406px !important;
+    transform: scale(0.6) !important;
+    transform-origin: top left !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .card-side-label { display: none !important; }
+}
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- ====================================================
+         FORM PANELİ (Sol)
+    ==================================================== -->
+    <aside class="form-panel">
+
+      <div class="fp-header">
+        <div class="fp-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 369.27 108.17" class="fp-logo-img" aria-label="Turkpin"><path fill="#231f20" d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"/><path fill="#231f20" d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"/><path fill="#231f20" d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"/><polygon fill="#231f20" points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"/><path fill="#231f20" d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"/><rect fill="#231f20" x="289.83" y="25.57" width="14.09" height="57.82"/><path fill="#231f20" d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"/><path fill="#ec2027" d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"/></svg>
+        </div>
+        <p class="fp-subtitle">Personel Kimlik Kartı Oluşturucu</p>
+      </div>
+
+      <div class="fp-divider"></div>
+
+      <!-- Fotoğraf Yükleme -->
+      <div class="fp-photo">
+        <div
+          class="photo-preview"
+          id="photoPreview"
+        >
+          <!-- Pixel art avatar (varsayılan) -->
+          <svg
+            class="default-avatar"
+            viewBox="0 0 96 128"
+            xmlns="http://www.w3.org/2000/svg"
+            shape-rendering="crispEdges"
+          >
+            <rect
+              x="28"
+              y="6"
+              width="40"
+              height="8"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="22"
+              y="14"
+              width="52"
+              height="6"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="20"
+              y="20"
+              width="8"
+              height="10"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="68"
+              y="20"
+              width="8"
+              height="10"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="22"
+              y="30"
+              width="4"
+              height="6"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="70"
+              y="30"
+              width="4"
+              height="6"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="26"
+              y="20"
+              width="44"
+              height="28"
+              fill="#e8b48c"
+            />
+            <rect
+              x="20"
+              y="24"
+              width="6"
+              height="10"
+              fill="#e8b48c"
+            />
+            <rect
+              x="70"
+              y="24"
+              width="6"
+              height="10"
+              fill="#d49e7a"
+            />
+            <rect
+              x="32"
+              y="26"
+              width="10"
+              height="8"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="34"
+              y="26"
+              width="4"
+              height="4"
+              fill="#3a7bd5"
+            />
+            <rect
+              x="34"
+              y="26"
+              width="2"
+              height="2"
+              fill="#6aa0e8"
+            />
+            <rect
+              x="54"
+              y="26"
+              width="10"
+              height="8"
+              fill="#1c1e2d"
+            />
+            <rect
+              x="56"
+              y="26"
+              width="4"
+              height="4"
+              fill="#3a7bd5"
+            />
+            <rect
+              x="56"
+              y="26"
+              width="2"
+              height="2"
+              fill="#6aa0e8"
+            />
+            <rect
+              x="46"
+              y="36"
+              width="4"
+              height="3"
+              fill="#c08060"
+            />
+            <rect
+              x="38"
+              y="42"
+              width="4"
+              height="2"
+              fill="#b06050"
+            />
+            <rect
+              x="42"
+              y="44"
+              width="12"
+              height="2"
+              fill="#b06050"
+            />
+            <rect
+              x="54"
+              y="42"
+              width="4"
+              height="2"
+              fill="#b06050"
+            />
+            <rect
+              x="40"
+              y="48"
+              width="16"
+              height="8"
+              fill="#e8b48c"
+            />
+            <rect
+              x="14"
+              y="54"
+              width="68"
+              height="74"
+              fill="#2a2e44"
+            />
+            <rect
+              x="36"
+              y="54"
+              width="24"
+              height="6"
+              fill="#1e2236"
+            />
+            <rect
+              x="40"
+              y="60"
+              width="16"
+              height="6"
+              fill="#1e2236"
+            />
+            <rect
+              x="44"
+              y="66"
+              width="8"
+              height="4"
+              fill="#1e2236"
+            />
+            <rect
+              x="46"
+              y="70"
+              width="4"
+              height="4"
+              fill="#1e2236"
+            />
+            <rect
+              x="47"
+              y="74"
+              width="2"
+              height="28"
+              fill="#232840"
+            />
+            <rect
+              x="24"
+              y="102"
+              width="20"
+              height="2"
+              fill="#232840"
+            />
+            <rect
+              x="52"
+              y="102"
+              width="20"
+              height="2"
+              fill="#232840"
+            />
+            <rect
+              x="22"
+              y="78"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="18"
+              y="82"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="22"
+              y="86"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="38"
+              y="86"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="42"
+              y="82"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="46"
+              y="78"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="70"
+              y="78"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="74"
+              y="82"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="70"
+              y="86"
+              width="4"
+              height="4"
+              fill="#e63946"
+            />
+            <rect
+              x="14"
+              y="60"
+              width="14"
+              height="42"
+              fill="#252940"
+            />
+            <rect
+              x="68"
+              y="60"
+              width="14"
+              height="42"
+              fill="#252940"
+            />
+            <rect
+              x="28"
+              y="86"
+              width="22"
+              height="12"
+              fill="#252940"
+            />
+            <rect
+              x="46"
+              y="90"
+              width="20"
+              height="8"
+              fill="#2a2e44"
+            />
+            <rect
+              x="14"
+              y="64"
+              width="14"
+              height="2"
+              fill="#e63946"
+              opacity="0.4"
+            />
+            <rect
+              x="68"
+              y="64"
+              width="14"
+              height="2"
+              fill="#e63946"
+              opacity="0.4"
+            />
+          </svg>
+          <img
+            id="photoImg"
+            src=""
+            alt="Fotoğraf"
+            style="display:none;"
+          >
+        </div>
+        <label
+          class="photo-upload-btn"
+          for="fPhoto"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 2v10M5 6l4-4 4 4"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M2 14h14"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+          </svg>
+          Fotoğraf Yükle
+        </label>
+        <input
+          type="file"
+          id="fPhoto"
+          accept="image/*"
+          style="display:none;"
+        >
+        <button
+          class="photo-clear-btn"
+          id="btnPhotoClear"
+          style="display:none;"
+        >Kaldır</button>
+      </div>
+
+      <div class="fp-divider"></div>
+
+      <!-- Bilgi Alanları -->
+      <div class="fp-fields">
+
+        <div class="fp-field">
+          <label for="fName">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="8"
+                cy="5"
+                r="3"
+                stroke="#e63946"
+                stroke-width="1.3"
+                fill="none"
+              />
+              <path
+                d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5"
+                stroke="#e63946"
+                stroke-width="1.3"
+                stroke-linecap="round"
+                fill="none"
+              />
+            </svg>
+            Ad Soyad
+          </label>
+          <input
+            type="text"
+            id="fName"
+            placeholder="Adınız ve soyadınız"
+            value="Oktay Aydoğan"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="fp-field">
+          <label for="fRole">
+            <svg
+              viewBox="0 0 16 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="0.7"
+                y="0.7"
+                width="14.6"
+                height="12.6"
+                rx="3.5"
+                stroke="#e63946"
+                stroke-width="1.3"
+                fill="none"
+              />
+              <rect
+                x="3"
+                y="4.5"
+                width="1.6"
+                height="3.5"
+                fill="#e63946"
+              />
+              <rect
+                x="2"
+                y="5.5"
+                width="3.6"
+                height="1.5"
+                fill="#e63946"
+              />
+              <circle
+                cx="11"
+                cy="5"
+                r="1"
+                fill="#e63946"
+              />
+              <circle
+                cx="13"
+                cy="6.8"
+                r="1"
+                fill="#e63946"
+              />
+              <circle
+                cx="11"
+                cy="8.5"
+                r="0.8"
+                fill="#e63946"
+                opacity="0.5"
+              />
+              <circle
+                cx="9"
+                cy="6.8"
+                r="0.8"
+                fill="#e63946"
+                opacity="0.5"
+              />
+            </svg>
+            Pozisyon
+          </label>
+          <input
+            type="text"
+            id="fRole"
+            placeholder="Unvanınız"
+            value="Senior Software Developer"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="fp-field">
+          <label for="fDept">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="5,3 1.5,8 5,13"
+                stroke="#e63946"
+                stroke-width="1.3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+              />
+              <polyline
+                points="11,3 14.5,8 11,13"
+                stroke="#e63946"
+                stroke-width="1.3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+              />
+              <line
+                x1="10"
+                y1="2.5"
+                x2="6"
+                y2="13.5"
+                stroke="#e63946"
+                stroke-width="1.3"
+                stroke-linecap="round"
+              />
+            </svg>
+            Departman
+          </label>
+          <input
+            type="text"
+            id="fDept"
+            placeholder="Departmanınız"
+            value="Yazılım Geliştirme"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="fp-field">
+          <label for="fId">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="1"
+                y="3"
+                width="14"
+                height="10"
+                rx="2"
+                stroke="#e63946"
+                stroke-width="1.3"
+                fill="none"
+              />
+              <line
+                x1="4"
+                y1="7"
+                x2="12"
+                y2="7"
+                stroke="#e63946"
+                stroke-width="1.2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="4"
+                y1="10"
+                x2="8"
+                y2="10"
+                stroke="#e63946"
+                stroke-width="1.2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Kart ID
+          </label>
+          <input
+            type="text"
+            id="fId"
+            placeholder="004832844 073,48716"
+            autocomplete="off"
+          >
+        </div>
+
+      </div>
+
+      <div class="fp-divider"></div>
+
+      <!-- Aksiyon Butonları -->
+      <div class="fp-actions">
+        <button
+          class="btn-flip"
+          id="btnFlip"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3 10a7 7 0 0 1 12.95-3.66"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+            <path
+              d="M17 10a7 7 0 0 1-12.95 3.66"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+            <polyline
+              points="16,4 17,7 14,7"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <polyline
+              points="4,16 3,13 6,13"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Kartı Çevir
+        </button>
+        <button
+          class="btn-print"
+          id="btnPrint"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="4"
+              y="1"
+              width="12"
+              height="8"
+              rx="1"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="7"
+              y="12"
+              width="6"
+              height="7"
+              rx="1"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="2"
+              y="7"
+              width="16"
+              height="9"
+              rx="1"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="14"
+              y="9.5"
+              width="2"
+              height="2"
+              fill="currentColor"
+            />
+          </svg>
+          Yazdır / PDF
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ====================================================
+         KART PANELİ (Sağ)
+    ==================================================== -->
+    <main class="card-panel">
+
+      <div class="card-scene">
+        <div
+          class="card-flipper"
+          id="cardFlipper"
+        >
+
+          <!-- ======== ÖN YÜZ ======== -->
+          <div
+            class="id-card card-front"
+            id="cardFront"
+          >
+
+            <!-- Köşe piksel aksanları -->
+            <span class="px-c px-tl"></span>
+            <span class="px-c px-tr"></span>
+            <span class="px-c px-bl"></span>
+            <span class="px-c px-br"></span>
+            <!-- Neon kenar -->
+            <span class="edge edge-top"></span>
+            <span class="edge edge-left"></span>
+
+            <!-- Dekoratif arka plan sprite'ları (ön yüz) -->
+            <div class="front-deco">
+              <!-- Space Invader — sağ orta -->
+              <svg
+                class="deco-front-invader"
+                viewBox="0 0 18 12"
+                xmlns="http://www.w3.org/2000/svg"
+                shape-rendering="crispEdges"
+              >
+                <rect
+                  x="2"
+                  y="0"
+                  width="2"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="14"
+                  y="0"
+                  width="2"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="2"
+                  y="2"
+                  width="14"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="0"
+                  y="4"
+                  width="18"
+                  height="4"
+                  fill="#e63946"
+                />
+                <rect
+                  x="4"
+                  y="4"
+                  width="2"
+                  height="2"
+                  fill="#c8d0dc"
+                />
+                <rect
+                  x="12"
+                  y="4"
+                  width="2"
+                  height="2"
+                  fill="#c8d0dc"
+                />
+                <rect
+                  x="2"
+                  y="8"
+                  width="4"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="12"
+                  y="8"
+                  width="4"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="8"
+                  y="10"
+                  width="2"
+                  height="2"
+                  fill="#e63946"
+                />
+              </svg>
+              <!-- Mushroom — sol alt -->
+              <svg
+                class="deco-front-mushroom"
+                viewBox="0 0 12 14"
+                xmlns="http://www.w3.org/2000/svg"
+                shape-rendering="crispEdges"
+              >
+                <rect
+                  x="4"
+                  y="0"
+                  width="4"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="2"
+                  y="2"
+                  width="8"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="0"
+                  y="4"
+                  width="12"
+                  height="4"
+                  fill="#e63946"
+                />
+                <rect
+                  x="2"
+                  y="4"
+                  width="2"
+                  height="2"
+                  fill="#c8d0dc"
+                />
+                <rect
+                  x="8"
+                  y="4"
+                  width="2"
+                  height="2"
+                  fill="#c8d0dc"
+                />
+                <rect
+                  x="2"
+                  y="8"
+                  width="8"
+                  height="6"
+                  fill="#c8a060"
+                />
+              </svg>
+            </div>
+
+            <!-- HEADER -->
+            <header class="card-header">
+              <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 369.27 108.17" class="logo-img" aria-label="Turkpin"><path fill="#231f20" d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"/><path fill="#231f20" d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"/><path fill="#231f20" d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"/><polygon fill="#231f20" points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"/><path fill="#231f20" d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"/><rect fill="#231f20" x="289.83" y="25.57" width="14.09" height="57.82"/><path fill="#231f20" d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"/><path fill="#ec2027" d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"/></svg>
+              </div>
+              <div class="card-badge">PERSONEL KİMLİK KARTI</div>
+            </header>
+
+            <!-- Ayırıcı -->
+            <div class="h-divider">
+              <span class="hd-line"></span>
+              <span class="hd-rhombus">◆</span>
+              <span class="hd-line"></span>
+            </div>
+
+            <!-- BODY -->
+            <div class="card-body">
+
+              <!-- Sol: Avatar -->
+              <div class="card-left">
+                <div class="avatar-outer">
+                  <div class="avatar-frame">
+                    <!-- Pixel art avatar (varsayılan) -->
+                    <svg
+                      class="avatar-svg"
+                      id="cardAvatar"
+                      viewBox="0 0 96 128"
+                      xmlns="http://www.w3.org/2000/svg"
+                      shape-rendering="crispEdges"
+                    >
+                      <rect
+                        x="28"
+                        y="6"
+                        width="40"
+                        height="8"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="22"
+                        y="14"
+                        width="52"
+                        height="6"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="20"
+                        y="20"
+                        width="8"
+                        height="10"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="68"
+                        y="20"
+                        width="8"
+                        height="10"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="22"
+                        y="30"
+                        width="4"
+                        height="6"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="70"
+                        y="30"
+                        width="4"
+                        height="6"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="26"
+                        y="20"
+                        width="44"
+                        height="28"
+                        fill="#e8b48c"
+                      />
+                      <rect
+                        x="20"
+                        y="24"
+                        width="6"
+                        height="10"
+                        fill="#e8b48c"
+                      />
+                      <rect
+                        x="70"
+                        y="24"
+                        width="6"
+                        height="10"
+                        fill="#d49e7a"
+                      />
+                      <rect
+                        x="32"
+                        y="26"
+                        width="10"
+                        height="8"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="34"
+                        y="26"
+                        width="4"
+                        height="4"
+                        fill="#3a7bd5"
+                      />
+                      <rect
+                        x="34"
+                        y="26"
+                        width="2"
+                        height="2"
+                        fill="#6aa0e8"
+                      />
+                      <rect
+                        x="54"
+                        y="26"
+                        width="10"
+                        height="8"
+                        fill="#1c1e2d"
+                      />
+                      <rect
+                        x="56"
+                        y="26"
+                        width="4"
+                        height="4"
+                        fill="#3a7bd5"
+                      />
+                      <rect
+                        x="56"
+                        y="26"
+                        width="2"
+                        height="2"
+                        fill="#6aa0e8"
+                      />
+                      <rect
+                        x="46"
+                        y="36"
+                        width="4"
+                        height="3"
+                        fill="#c08060"
+                      />
+                      <rect
+                        x="38"
+                        y="42"
+                        width="4"
+                        height="2"
+                        fill="#b06050"
+                      />
+                      <rect
+                        x="42"
+                        y="44"
+                        width="12"
+                        height="2"
+                        fill="#b06050"
+                      />
+                      <rect
+                        x="54"
+                        y="42"
+                        width="4"
+                        height="2"
+                        fill="#b06050"
+                      />
+                      <rect
+                        x="40"
+                        y="48"
+                        width="16"
+                        height="8"
+                        fill="#e8b48c"
+                      />
+                      <rect
+                        x="14"
+                        y="54"
+                        width="68"
+                        height="74"
+                        fill="#2a2e44"
+                      />
+                      <rect
+                        x="36"
+                        y="54"
+                        width="24"
+                        height="6"
+                        fill="#1e2236"
+                      />
+                      <rect
+                        x="40"
+                        y="60"
+                        width="16"
+                        height="6"
+                        fill="#1e2236"
+                      />
+                      <rect
+                        x="44"
+                        y="66"
+                        width="8"
+                        height="4"
+                        fill="#1e2236"
+                      />
+                      <rect
+                        x="46"
+                        y="70"
+                        width="4"
+                        height="4"
+                        fill="#1e2236"
+                      />
+                      <rect
+                        x="47"
+                        y="74"
+                        width="2"
+                        height="28"
+                        fill="#232840"
+                      />
+                      <rect
+                        x="24"
+                        y="102"
+                        width="20"
+                        height="2"
+                        fill="#232840"
+                      />
+                      <rect
+                        x="52"
+                        y="102"
+                        width="20"
+                        height="2"
+                        fill="#232840"
+                      />
+                      <rect
+                        x="22"
+                        y="78"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="18"
+                        y="82"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="22"
+                        y="86"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="38"
+                        y="86"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="42"
+                        y="82"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="46"
+                        y="78"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="70"
+                        y="78"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="74"
+                        y="82"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="70"
+                        y="86"
+                        width="4"
+                        height="4"
+                        fill="#e63946"
+                      />
+                      <rect
+                        x="14"
+                        y="60"
+                        width="14"
+                        height="42"
+                        fill="#252940"
+                      />
+                      <rect
+                        x="68"
+                        y="60"
+                        width="14"
+                        height="42"
+                        fill="#252940"
+                      />
+                      <rect
+                        x="28"
+                        y="86"
+                        width="22"
+                        height="12"
+                        fill="#252940"
+                      />
+                      <rect
+                        x="46"
+                        y="90"
+                        width="20"
+                        height="8"
+                        fill="#2a2e44"
+                      />
+                      <rect
+                        x="14"
+                        y="64"
+                        width="14"
+                        height="2"
+                        fill="#e63946"
+                        opacity="0.4"
+                      />
+                      <rect
+                        x="68"
+                        y="64"
+                        width="14"
+                        height="2"
+                        fill="#e63946"
+                        opacity="0.4"
+                      />
+                    </svg>
+                    <!-- Yüklenen fotoğraf (gizli varsayılan) -->
+                    <img
+                      class="avatar-photo"
+                      id="cardPhoto"
+                      src=""
+                      alt=""
+                      style="display:none;"
+                    >
+                  </div>
+                  <div class="avatar-glow-ring"></div>
+                </div>
+              </div>
+
+              <!-- Sağ: Bilgiler -->
+              <div class="card-right">
+                <div class="info-list">
+
+                  <div class="info-row">
+                    <span class="info-icon">
+                      <svg
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle
+                          cx="9"
+                          cy="5.5"
+                          r="3.5"
+                          stroke="#e63946"
+                          stroke-width="1.4"
+                          fill="none"
+                        />
+                        <path
+                          d="M2.5 16c0-3.59 2.91-6 6.5-6s6.5 2.41 6.5 6"
+                          stroke="#e63946"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                          fill="none"
+                        />
+                      </svg>
+                    </span>
+                    <div class="info-text">
+                      <span class="info-label">Ad Soyad</span>
+                      <span
+                        class="info-value"
+                        id="dispName"
+                      >Oktay Aydoğan</span>
+                    </div>
+                  </div>
+
+                  <div class="info-sep"></div>
+
+                  <div class="info-row">
+                    <span class="info-icon">
+                      <svg
+                        viewBox="0 0 18 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          x="0.7"
+                          y="0.7"
+                          width="16.6"
+                          height="12.6"
+                          rx="4"
+                          stroke="#e63946"
+                          stroke-width="1.4"
+                          fill="none"
+                        />
+                        <rect
+                          x="3"
+                          y="5"
+                          width="1.8"
+                          height="4"
+                          fill="#e63946"
+                        />
+                        <rect
+                          x="2"
+                          y="6"
+                          width="3.8"
+                          height="1.8"
+                          fill="#e63946"
+                        />
+                        <circle
+                          cx="12.5"
+                          cy="5.5"
+                          r="1.1"
+                          fill="#e63946"
+                        />
+                        <circle
+                          cx="14.8"
+                          cy="7"
+                          r="1.1"
+                          fill="#e63946"
+                        />
+                        <circle
+                          cx="12.5"
+                          cy="8.5"
+                          r="0.9"
+                          fill="#e63946"
+                          opacity="0.55"
+                        />
+                        <circle
+                          cx="10.2"
+                          cy="7"
+                          r="0.9"
+                          fill="#e63946"
+                          opacity="0.55"
+                        />
+                      </svg>
+                    </span>
+                    <div class="info-text">
+                      <span class="info-label">Pozisyon</span>
+                      <span
+                        class="info-value"
+                        id="dispRole"
+                      >Senior Software Developer</span>
+                    </div>
+                  </div>
+
+                  <div class="info-sep"></div>
+
+                  <div class="info-row">
+                    <span class="info-icon">
+                      <svg
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <polyline
+                          points="6,4 1.5,9 6,14"
+                          stroke="#e63946"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          fill="none"
+                        />
+                        <polyline
+                          points="12,4 16.5,9 12,14"
+                          stroke="#e63946"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          fill="none"
+                        />
+                        <line
+                          x1="11"
+                          y1="3"
+                          x2="7"
+                          y2="15"
+                          stroke="#e63946"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    </span>
+                    <div class="info-text">
+                      <span class="info-label">Departman</span>
+                      <span
+                        class="info-value"
+                        id="dispDept"
+                      >Yazılım Geliştirme</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div><!-- /card-body -->
+
+            <!-- FOOTER -->
+            <footer class="card-footer">
+              <div class="game-strip">
+                <svg
+                  class="gi gi-pad"
+                  viewBox="0 0 22 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="0.5"
+                    y="0.5"
+                    width="21"
+                    height="15"
+                    rx="4.5"
+                    stroke="#e63946"
+                    stroke-width="1"
+                    fill="none"
+                  />
+                  <rect
+                    x="3.5"
+                    y="5.5"
+                    width="2"
+                    height="5"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="2"
+                    y="7"
+                    width="5"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <circle
+                    cx="15"
+                    cy="6"
+                    r="1.2"
+                    fill="#e63946"
+                  />
+                  <circle
+                    cx="17.5"
+                    cy="8"
+                    r="1.2"
+                    fill="#e63946"
+                  />
+                  <circle
+                    cx="15"
+                    cy="10"
+                    r="1"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <circle
+                    cx="12.5"
+                    cy="8"
+                    r="1"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                </svg>
+                <svg
+                  class="gi gi-pac"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 8 L15 4.5 A7 7 0 1 0 15 11.5 Z"
+                    fill="#f5c842"
+                  />
+                  <circle
+                    cx="8"
+                    cy="4"
+                    r="1.2"
+                    fill="#1a1a2e"
+                  />
+                </svg>
+                <!-- Space Invader -->
+                <svg
+                  class="gi gi-invader"
+                  viewBox="0 0 18 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  shape-rendering="crispEdges"
+                >
+                  <rect
+                    x="2"
+                    y="0"
+                    width="2"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="14"
+                    y="0"
+                    width="2"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="2"
+                    y="2"
+                    width="14"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="0"
+                    y="4"
+                    width="18"
+                    height="4"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="4"
+                    y="4"
+                    width="2"
+                    height="2"
+                    fill="white"
+                    opacity="0.75"
+                  />
+                  <rect
+                    x="12"
+                    y="4"
+                    width="2"
+                    height="2"
+                    fill="white"
+                    opacity="0.75"
+                  />
+                  <rect
+                    x="2"
+                    y="8"
+                    width="4"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="12"
+                    y="8"
+                    width="4"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="8"
+                    y="10"
+                    width="2"
+                    height="2"
+                    fill="#e63946"
+                  />
+                </svg>
+                <!-- Mario Star -->
+                <svg
+                  class="gi gi-star"
+                  viewBox="0 0 14 13"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 0.5 L8.5 4.8 H13.2 L9.6 7.5 L11.1 11.8 L7 9.1 L2.9 11.8 L4.4 7.5 L0.8 4.8 H5.5 Z"
+                    fill="#f5c842"
+                  />
+                </svg>
+                <svg
+                  class="gi gi-pellets"
+                  viewBox="0 0 36 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="4"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.9"
+                  />
+                  <circle
+                    cx="13"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.65"
+                  />
+                  <circle
+                    cx="22"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.4"
+                  />
+                  <circle
+                    cx="31"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.2"
+                  />
+                </svg>
+                <!-- Mushroom -->
+                <svg
+                  class="gi gi-mushroom"
+                  viewBox="0 0 12 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  shape-rendering="crispEdges"
+                >
+                  <rect
+                    x="4"
+                    y="0"
+                    width="4"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="2"
+                    y="2"
+                    width="8"
+                    height="2"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="0"
+                    y="4"
+                    width="12"
+                    height="4"
+                    fill="#e63946"
+                  />
+                  <rect
+                    x="2"
+                    y="4"
+                    width="2"
+                    height="2"
+                    fill="white"
+                    opacity="0.85"
+                  />
+                  <rect
+                    x="8"
+                    y="4"
+                    width="2"
+                    height="2"
+                    fill="white"
+                    opacity="0.85"
+                  />
+                  <rect
+                    x="2"
+                    y="8"
+                    width="8"
+                    height="6"
+                    fill="#e8c99a"
+                  />
+                </svg>
+                <svg
+                  class="gi gi-ghost"
+                  viewBox="0 0 14 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M0 18 V7 Q0 0 7 0 Q14 0 14 7 V18 L11.5 15 L9 18 L7 15 L5 18 L2.5 15 Z"
+                    fill="#8892a4"
+                    opacity="0.75"
+                  />
+                  <circle
+                    cx="4.5"
+                    cy="8"
+                    r="1.8"
+                    fill="#0a0e1a"
+                  />
+                  <circle
+                    cx="9.5"
+                    cy="8"
+                    r="1.8"
+                    fill="#0a0e1a"
+                  />
+                  <circle
+                    cx="5"
+                    cy="8"
+                    r="0.7"
+                    fill="white"
+                  />
+                  <circle
+                    cx="10"
+                    cy="8"
+                    r="0.7"
+                    fill="white"
+                  />
+                </svg>
+              </div>
+              <div class="footer-right">
+                <span
+                  class="card-id"
+                  id="dispId"
+                ></span>
+              </div>
+            </footer>
+
+          </div><!-- /card-front -->
+
+          <!-- ======== ARKA YÜZ ======== -->
+          <div
+            class="id-card card-back"
+            id="cardBack"
+          >
+
+            <!-- Köşe piksel aksanları -->
+            <span class="px-c px-tl"></span>
+            <span class="px-c px-tr"></span>
+            <span class="px-c px-bl"></span>
+            <span class="px-c px-br"></span>
+
+            <!-- Dekoratif arka plan sprite'ları -->
+            <div class="back-deco">
+              <!-- Büyük pixel ghost — sağ alt -->
+              <svg
+                class="deco-ghost"
+                viewBox="0 0 56 72"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 72 V28 Q0 0 28 0 Q56 0 56 28 V72 L46 58 L36 72 L28 58 L20 72 L10 58 Z"
+                  fill="#e63946"
+                  opacity="0.07"
+                />
+                <circle
+                  cx="18"
+                  cy="32"
+                  r="7"
+                  fill="#1a1e2e"
+                  opacity="0.08"
+                />
+                <circle
+                  cx="38"
+                  cy="32"
+                  r="7"
+                  fill="#1a1e2e"
+                  opacity="0.08"
+                />
+                <circle
+                  cx="20"
+                  cy="30"
+                  r="2.5"
+                  fill="white"
+                  opacity="0.07"
+                />
+                <circle
+                  cx="40"
+                  cy="30"
+                  r="2.5"
+                  fill="white"
+                  opacity="0.07"
+                />
+              </svg>
+              <!-- Büyük pixel pac-man — sol orta -->
+              <svg
+                class="deco-pacman"
+                viewBox="0 0 64 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M32 32 L60 18 A30 30 0 1 0 60 46 Z"
+                  fill="#f5c842"
+                  opacity="0.07"
+                />
+              </svg>
+              <!-- Space Invader — üst sağ -->
+              <svg
+                class="deco-back-invader"
+                viewBox="0 0 18 12"
+                xmlns="http://www.w3.org/2000/svg"
+                shape-rendering="crispEdges"
+              >
+                <rect
+                  x="2"
+                  y="0"
+                  width="2"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="14"
+                  y="0"
+                  width="2"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="2"
+                  y="2"
+                  width="14"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="0"
+                  y="4"
+                  width="18"
+                  height="4"
+                  fill="#e63946"
+                />
+                <rect
+                  x="4"
+                  y="4"
+                  width="2"
+                  height="2"
+                  fill="#1a1e2e"
+                />
+                <rect
+                  x="12"
+                  y="4"
+                  width="2"
+                  height="2"
+                  fill="#1a1e2e"
+                />
+                <rect
+                  x="2"
+                  y="8"
+                  width="4"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="12"
+                  y="8"
+                  width="4"
+                  height="2"
+                  fill="#e63946"
+                />
+                <rect
+                  x="8"
+                  y="10"
+                  width="2"
+                  height="2"
+                  fill="#e63946"
+                />
+              </svg>
+              <!-- Mario Star — sol üst -->
+              <svg
+                class="deco-back-star"
+                viewBox="0 0 14 13"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7 0.5 L8.5 4.8 H13.2 L9.6 7.5 L11.1 11.8 L7 9.1 L2.9 11.8 L4.4 7.5 L0.8 4.8 H5.5 Z"
+                  fill="#f5c842"
+                />
+              </svg>
+            </div>
+
+            <!-- Orta İçerik -->
+            <div class="back-content">
+
+              <!-- Büyük Logo (full) -->
+              <div class="back-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 369.27 169.15" class="back-logo-img" aria-label="Turkpin"><path fill="#231f20" d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"/><path fill="#231f20" d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"/><path fill="#231f20" d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"/><polygon fill="#231f20" points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"/><path fill="#231f20" d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"/><rect fill="#231f20" x="289.83" y="25.57" width="14.09" height="57.82"/><path fill="#231f20" d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"/><path fill="#ec2027" d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"/><text fill="#231f20" font-size="35.43" font-family="ShadowsIntoLight, Shadows Into Light" transform="translate(28.11 154.13)">Oyun Nerede, Biz Orada</text></svg>
+              </div>
+
+              <!-- İnce ayırıcı -->
+              <div class="back-divider">
+                <span class="bd-line"></span>
+                <span class="bd-icon">
+                  <svg
+                    viewBox="0 0 16 14"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <rect
+                      x="0.5"
+                      y="0.5"
+                      width="15"
+                      height="13"
+                      rx="3.5"
+                      stroke="#e63946"
+                      stroke-width="1"
+                      fill="none"
+                      opacity="0.5"
+                    />
+                    <rect
+                      x="3"
+                      y="4"
+                      width="1.5"
+                      height="3.5"
+                      fill="#e63946"
+                      opacity="0.5"
+                    />
+                    <rect
+                      x="2"
+                      y="5"
+                      width="3.5"
+                      height="1.5"
+                      fill="#e63946"
+                      opacity="0.5"
+                    />
+                    <circle
+                      cx="11"
+                      cy="5"
+                      r="1"
+                      fill="#e63946"
+                      opacity="0.5"
+                    />
+                    <circle
+                      cx="13"
+                      cy="6.5"
+                      r="1"
+                      fill="#e63946"
+                      opacity="0.5"
+                    />
+                  </svg>
+                </span>
+                <span class="bd-line"></span>
+              </div>
+
+              <!-- Kart Politika Metinleri -->
+              <div class="card-policy">
+                <p class="policy-main">
+                  Bu kart <strong>Turkpin</strong> mülkiyetindedir ve yalnızca üzerinde
+                  kayıtlı personele aittir. Başkasına devredilemez, kopyalanamaz.
+                </p>
+                <div class="policy-divider"></div>
+                <p class="policy-lost">
+                  <svg
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="7"
+                      cy="7"
+                      r="6"
+                      stroke="#e63946"
+                      stroke-width="1.2"
+                      fill="none"
+                      opacity="0.6"
+                    />
+                    <line
+                      x1="7"
+                      y1="4"
+                      x2="7"
+                      y2="7.5"
+                      stroke="#e63946"
+                      stroke-width="1.2"
+                      stroke-linecap="round"
+                      opacity="0.6"
+                    />
+                    <circle
+                      cx="7"
+                      cy="9.5"
+                      r="0.8"
+                      fill="#e63946"
+                      opacity="0.6"
+                    />
+                  </svg>
+                  Bulunması halinde lütfen iade ediniz:
+                  <span class="policy-contact">info@turkpin.com</span>
+                  <span class="policy-sep">·</span>
+                  <span class="policy-contact">0850 303 3 303</span>
+                </p>
+              </div>
+
+            </div><!-- /back-content -->
+
+            <!-- Alt Footer -->
+            <footer class="back-footer">
+              <div class="back-game-icons">
+                <svg
+                  viewBox="0 0 22 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="13"
+                >
+                  <rect
+                    x="0.5"
+                    y="0.5"
+                    width="21"
+                    height="15"
+                    rx="4.5"
+                    stroke="#e63946"
+                    stroke-width="1"
+                    fill="none"
+                    opacity="0.5"
+                  />
+                  <rect
+                    x="3.5"
+                    y="5.5"
+                    width="2"
+                    height="5"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <rect
+                    x="2"
+                    y="7"
+                    width="5"
+                    height="2"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <circle
+                    cx="15"
+                    cy="6"
+                    r="1.2"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <circle
+                    cx="17.5"
+                    cy="8"
+                    r="1.2"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                </svg>
+                <!-- Pixel Heart -->
+                <svg
+                  viewBox="0 0 12 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  shape-rendering="crispEdges"
+                  width="12"
+                  height="10"
+                >
+                  <rect
+                    x="1"
+                    y="0"
+                    width="4"
+                    height="2"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <rect
+                    x="7"
+                    y="0"
+                    width="4"
+                    height="2"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <rect
+                    x="0"
+                    y="2"
+                    width="12"
+                    height="4"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <rect
+                    x="1"
+                    y="6"
+                    width="10"
+                    height="2"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                  <rect
+                    x="3"
+                    y="8"
+                    width="6"
+                    height="2"
+                    fill="#e63946"
+                    opacity="0.5"
+                  />
+                </svg>
+                <svg
+                  class="bg-pellets"
+                  viewBox="0 0 36 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="4"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.4"
+                  />
+                  <circle
+                    cx="13"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.3"
+                  />
+                  <circle
+                    cx="22"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.2"
+                  />
+                  <circle
+                    cx="31"
+                    cy="4"
+                    r="2"
+                    fill="#e63946"
+                    opacity="0.1"
+                  />
+                </svg>
+                <!-- Kılıç -->
+                <svg
+                  viewBox="0 0 8 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="8"
+                  height="16"
+                >
+                  <rect
+                    x="3"
+                    y="0"
+                    width="2"
+                    height="10"
+                    fill="#c8d0dc"
+                    opacity="0.6"
+                  />
+                  <rect
+                    x="0"
+                    y="9"
+                    width="8"
+                    height="2"
+                    fill="#f5c842"
+                    opacity="0.55"
+                  />
+                  <rect
+                    x="3"
+                    y="11"
+                    width="2"
+                    height="4"
+                    fill="#a07850"
+                    opacity="0.5"
+                  />
+                </svg>
+                <!-- Tetris T-piece -->
+                <svg
+                  viewBox="0 0 12 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  shape-rendering="crispEdges"
+                  width="14"
+                  height="9"
+                >
+                  <rect
+                    x="4"
+                    y="0"
+                    width="4"
+                    height="4"
+                    fill="#8b5cf6"
+                    opacity="0.45"
+                  />
+                  <rect
+                    x="0"
+                    y="4"
+                    width="12"
+                    height="4"
+                    fill="#8b5cf6"
+                    opacity="0.45"
+                  />
+                </svg>
+              </div>
+              <div class="back-note">Kart sahibine aittir</div>
+            </footer>
+
+          </div><!-- /card-back -->
+
+        </div><!-- /card-flipper -->
+      </div><!-- /card-scene -->
+
+      <!-- Kart altı etiket -->
+      <div class="card-side-label">
+        <span
+          class="csl-dot active"
+          id="dotFront"
+        ></span>
+        <span
+          class="csl-dot"
+          id="dotBack"
+        ></span>
+      </div>
+
+    </main><!-- /card-panel -->
+
+  </div><!-- /app -->
+
+  <script>
+/* =============================================
+   TURKPIN PERSONEL KİMLİK KARTI — script.js
+   ============================================= */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ─── Elementler ─── */
+  const fName         = document.getElementById('fName');
+  const fRole         = document.getElementById('fRole');
+  const fDept         = document.getElementById('fDept');
+  const fId           = document.getElementById('fId');
+  const fPhoto        = document.getElementById('fPhoto');
+
+  const dispName      = document.getElementById('dispName');
+  const dispRole      = document.getElementById('dispRole');
+  const dispDept      = document.getElementById('dispDept');
+  const dispId        = document.getElementById('dispId');
+
+  const cardAvatar    = document.getElementById('cardAvatar');
+  const cardPhoto     = document.getElementById('cardPhoto');
+
+  const photoPreview  = document.getElementById('photoPreview');
+  const photoImg      = document.getElementById('photoImg');
+  const btnPhotoClear = document.getElementById('btnPhotoClear');
+
+  const cardFront     = document.getElementById('cardFront');
+  const cardBack      = document.getElementById('cardBack');
+  const cardFlipper   = document.getElementById('cardFlipper');
+  const btnFlip       = document.getElementById('btnFlip');
+  const btnPrint      = document.getElementById('btnPrint');
+  const dotFront      = document.getElementById('dotFront');
+  const dotBack       = document.getElementById('dotBack');
+
+  let isFlipped = false;
+
+  /* ─── Form → Kart Canlı Senkronizasyon ─── */
+
+  function syncCard() {
+    const name = fName.value.trim() || 'Ad Soyad';
+    const role = fRole.value.trim() || 'Pozisyon';
+    const dept = fDept.value.trim() || 'Departman';
+    const id   = fId.value.trim()   || '';
+
+    if (dispName) dispName.textContent = name;
+    if (dispRole) dispRole.textContent = role;
+    if (dispDept) dispDept.textContent = dept;
+    if (dispId)   dispId.textContent   = id;
+  }
+
+  fName.addEventListener('input', syncCard);
+  fRole.addEventListener('input', syncCard);
+  fDept.addEventListener('input', syncCard);
+  fId.addEventListener('input', syncCard);
+
+  /* ─── Fotoğraf Yükleme ─── */
+  fPhoto.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const src = ev.target.result;
+
+      // Form panel önizleme
+      const defaultAvatarFp = photoPreview.querySelector('.default-avatar');
+      if (defaultAvatarFp) defaultAvatarFp.style.display = 'none';
+      photoImg.src = src;
+      photoImg.style.display = 'block';
+      btnPhotoClear.style.display = 'inline-block';
+
+      // Kart üzerindeki avatar → fotoğraf
+      if (cardAvatar) cardAvatar.style.display = 'none';
+      if (cardPhoto) {
+        cardPhoto.src = src;
+        cardPhoto.style.display = 'block';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ─── Fotoğraf Kaldır ─── */
+  btnPhotoClear.addEventListener('click', () => {
+    fPhoto.value = '';
+    photoImg.src = '';
+    photoImg.style.display = 'none';
+    btnPhotoClear.style.display = 'none';
+
+    const defaultAvatarFp = photoPreview.querySelector('.default-avatar');
+    if (defaultAvatarFp) defaultAvatarFp.style.display = 'block';
+
+    if (cardPhoto) {
+      cardPhoto.src = '';
+      cardPhoto.style.display = 'none';
+    }
+    if (cardAvatar) cardAvatar.style.display = 'block';
+  });
+
+  /* ─── Kart Çevirme (3D Flip) ─── */
+  function flipCard() {
+    isFlipped = !isFlipped;
+    cardFlipper.classList.toggle('flipped', isFlipped);
+
+    dotFront.classList.toggle('active', !isFlipped);
+    dotBack.classList.toggle('active', isFlipped);
+
+    const btnLabel = btnFlip.querySelector('svg') ? btnFlip : null;
+    if (btnLabel) {
+      const textNode = [...btnFlip.childNodes].find(n => n.nodeType === 3);
+      if (textNode) textNode.textContent = isFlipped ? ' Öne Çevir' : ' Kartı Çevir';
+    }
+  }
+
+  btnFlip.addEventListener('click', flipCard);
+
+  /* ─── Yazdır / PDF ─── */
+  btnPrint.addEventListener('click', () => {
+    // Her iki kartı klonla, geçici print container'a yerleştir
+    const front = cardFront.cloneNode(true);
+    const back  = cardBack.cloneNode(true);
+
+    // Arka yüzün rotateY(180deg) transform'unu sıfırla
+    back.style.transform = '';
+
+    const pc = document.createElement('div');
+    pc.id = 'print-container';
+
+    const p1 = document.createElement('div');
+    p1.className = 'print-page';
+    p1.appendChild(front);
+
+    const p2 = document.createElement('div');
+    p2.className = 'print-page';
+    p2.appendChild(back);
+
+    pc.appendChild(p1);
+    pc.appendChild(p2);
+    document.body.appendChild(pc);
+
+    // Print bittikten sonra container'ı temizle
+    window.addEventListener('afterprint', () => pc.remove(), { once: true });
+    window.print();
+  });
+
+  /* ─── Kart 3D Tilt (Hover Efekti) ─── */
+  const MAX_TILT = 5;
+
+  cardFlipper.addEventListener('mousemove', (e) => {
+    if (cardFlipper.style.transition &&
+        cardFlipper.style.transition.includes('0.72s')) return;
+
+    const rect  = cardFlipper.getBoundingClientRect();
+    const cx    = rect.left + rect.width  / 2;
+    const cy    = rect.top  + rect.height / 2;
+    const dx    = (e.clientX - cx) / (rect.width  / 2);
+    const dy    = (e.clientY - cy) / (rect.height / 2);
+    const rotX  = (-dy * MAX_TILT).toFixed(2);
+    const rotY  = ( dx * MAX_TILT).toFixed(2);
+
+    cardFlipper.style.transform = isFlipped
+      ? `rotateY(180deg) rotateX(${rotX}deg) rotateY(${-rotY}deg) scale(1.01)`
+      : `perspective(1200px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.01)`;
+    cardFlipper.style.transition = 'transform 0.08s linear';
+  });
+
+  cardFlipper.addEventListener('mouseleave', () => {
+    cardFlipper.style.transform = isFlipped ? 'rotateY(180deg)' : '';
+    cardFlipper.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1)';
+  });
+
+  /* ─── İlk Senkronizasyon ─── */
+  syncCard();
+
+});
+  </script>
+</body>
+
+</html>
