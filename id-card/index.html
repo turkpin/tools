@@ -749,7 +749,7 @@
     }
 
     .card-id {
-      font-size: 0.9em;
+      font-size: 1.2em;
       font-weight: 600;
       color: var(--c-red);
       letter-spacing: 0.5px;
@@ -757,8 +757,6 @@
       font-family: var(--font-main);
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 180px;
     }
 
     /* =============================================
@@ -3416,12 +3414,12 @@
         const name = fName.value.trim() || fName.placeholder;
         const role = fRole.value.trim() || fRole.placeholder;
         const dept = fDept.value.trim() || fDept.placeholder;
-        const id   = fId.value.trim();
+        const id = fId.value.trim();
 
         if (dispName) dispName.textContent = name;
         if (dispRole) dispRole.textContent = role;
         if (dispDept) dispDept.textContent = dept;
-        if (dispId)   dispId.textContent   = id;
+        if (dispId) dispId.textContent = id;
       }
 
       fName.addEventListener('input', syncCard);
