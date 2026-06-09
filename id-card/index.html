@@ -17,766 +17,1124 @@
     rel="stylesheet"
   >
   <style>
-/* =============================================
+    /* =============================================
    TURKPIN PERSONEL KİMLİK KARTI — style.css
    Layout: Form (sol) + Kart ön/arka (sağ)
    Kart oranı: 9:6  (630×420px)
    ============================================= */
 
-/* ─── CSS Değişkenleri ─── */
-:root {
-  --c-navy:      #0a0e1a;
-  --c-navy-mid:  #0d1220;
-  --c-panel:     #0f1422;
-  --c-surface:   #111828;
-  --c-border:    rgba(255,255,255,0.07);
+    /* ─── CSS Değişkenleri ─── */
+    :root {
+      --c-navy: #0a0e1a;
+      --c-navy-mid: #0d1220;
+      --c-panel: #0f1422;
+      --c-surface: #111828;
+      --c-border: rgba(255, 255, 255, 0.07);
 
-  --c-red:       #e63946;
-  --c-red-glow:  rgba(230,57,70,0.35);
-  --c-red-dim:   rgba(230,57,70,0.12);
+      --c-red: #e63946;
+      --c-red-glow: rgba(230, 57, 70, 0.35);
+      --c-red-dim: rgba(230, 57, 70, 0.12);
 
-  --c-white:     #f0f4ff;
-  --c-gray:      #7a8499;
-  --c-gray-lt:   #9aa3b5;
-  --c-gold:      #f5c842;
+      --c-white: #f0f4ff;
+      --c-gray: #7a8499;
+      --c-gray-lt: #9aa3b5;
+      --c-gold: #f5c842;
 
-  --card-w: 646px;
-  --card-h: 406px;
-  --card-r: 14px;
+      --card-w: 646px;
+      --card-h: 406px;
+      --card-r: 14px;
 
-  --font-main:  'Inter', system-ui, sans-serif;
-  --font-pixel: 'Press Start 2P', monospace;
-}
+      --font-main: 'Inter', system-ui, sans-serif;
+      --font-pixel: 'Press Start 2P', monospace;
+    }
 
-/* ─── Reset ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+    /* ─── Reset ─── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body {
-  font-family: var(--font-main);
-  background: #1a1f2e;
-  color: var(--c-white);
-  display: flex;
-  align-items: stretch;
-  min-height: 100vh;
-}
+    html,
+    body {
+      height: 100%;
+    }
 
-/* =============================================
+    body {
+      font-family: var(--font-main);
+      background: #1a1f2e;
+      color: var(--c-white);
+      display: flex;
+      align-items: stretch;
+      min-height: 100vh;
+    }
+
+    /* =============================================
    APP LAYOUT
    ============================================= */
-.app {
-  display: flex;
-  width: 100%;
-  min-height: 100vh;
-}
+    .app {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
 
-/* ─── FORM PANELİ (Sol) ─── */
-.form-panel {
-  width: 300px;
-  min-width: 300px;
-  background: #0c101e;
-  border-right: 1px solid var(--c-border);
-  display: flex;
-  flex-direction: column;
-  padding: 28px 20px;
-  overflow-y: auto;
-  gap: 0;
-}
+    /* ─── FORM PANELİ (Sol) ─── */
+    .form-panel {
+      width: 300px;
+      min-width: 300px;
+      background: #ffffff;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 20px;
+      overflow-y: auto;
+      gap: 0;
+      /* Beyaz arka plan için değişken override */
+      --c-white: #1a1e2e;
+      --c-gray: #475569;
+      --c-gray-lt: #64748b;
+      --c-border: rgba(0, 0, 0, 0.08);
+      --c-surface: #f1f5f9;
+      --c-panel: #e8edf4;
+    }
 
-/* ─── KART PANELİ (Sağ) ─── */
-.card-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 40px 40px;
-  background:
-    radial-gradient(ellipse at 60% 50%, rgba(230,57,70,0.05) 0%, transparent 65%),
-    #12172a;
-}
+    /* ─── KART PANELİ (Sağ) ─── */
+    .card-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 40px 40px;
+      background:
+        radial-gradient(ellipse at 60% 50%, rgba(230, 57, 70, 0.05) 0%, transparent 65%),
+        #12172a;
+    }
 
-/* =============================================
+    /* =============================================
    FORM PANELİ İÇERİĞİ
    ============================================= */
 
-/* Header */
-.fp-header {
-  margin-bottom: 4px;
-}
-.fp-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.fp-logo svg:not(.fp-logo-img) {
-  width: 1.25em;
-  height: 1.25em;
-  flex-shrink: 0;
-}
-.fp-logo span {
-  font-family: var(--font-pixel);
-  font-size: 0.813em;
-  line-height: 1;
-}
-.fp-logo-img {
-  height: 1.625em;
-  width: auto;
-  display: block;
-  object-fit: contain;
-}
-.l-turk { color: var(--c-white); }
-.l-pin  { color: var(--c-red); }
+    /* Header */
+    .fp-header {
+      margin-bottom: 4px;
+    }
 
-.fp-subtitle {
-  font-size: 0.625em;
-  color: var(--c-gray);
-  letter-spacing: 0.5px;
-}
+    .fp-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
 
-/* Ayırıcı */
-.fp-divider {
-  height: 1px;
-  background: var(--c-border);
-  margin: 18px 0;
-}
+    .fp-logo svg:not(.fp-logo-img) {
+      width: 1.25em;
+      height: 1.25em;
+      flex-shrink: 0;
+    }
 
-/* ─── Fotoğraf Bölümü ─── */
-.fp-photo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
+    .fp-logo span {
+      font-family: var(--font-pixel);
+      font-size: 0.813em;
+      line-height: 1;
+    }
 
-.photo-preview {
-  width: 130px;
-  height: 130px;
-  border-radius: 8px;
-  border: 1.5px solid rgba(230,57,70,0.35);
-  background: var(--c-panel);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.photo-preview .default-avatar {
-  width: 90px;
-  height: 120px;
-  image-rendering: pixelated;
-}
-.photo-preview #photoImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .fp-logo-img {
+      height: 1.625em;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
 
-.photo-upload-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.688em;
-  font-weight: 600;
-  color: var(--c-gray-lt);
-  border: 1px solid rgba(230,57,70,0.3);
-  border-radius: 6px;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition: all 0.18s;
-  background: rgba(230,57,70,0.06);
-  letter-spacing: 0.3px;
-}
-.photo-upload-btn svg {
-  width: 0.813em;
-  height: 0.813em;
-  stroke: var(--c-red);
-}
-.photo-upload-btn:hover {
-  border-color: var(--c-red);
-  color: var(--c-white);
-  background: rgba(230,57,70,0.12);
-}
+    .l-turk {
+      color: var(--c-white);
+    }
 
-.photo-clear-btn {
-  font-size: 0.625em;
-  color: var(--c-gray);
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-}
-.photo-clear-btn:hover { color: var(--c-red); }
+    .l-pin {
+      color: var(--c-red);
+    }
 
-/* ─── Form Alanları ─── */
-.fp-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+    .fp-subtitle {
+      font-size: 0.625em;
+      color: var(--c-gray);
+      letter-spacing: 0.5px;
+    }
 
-.fp-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.fp-field label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.625em;
-  font-weight: 600;
-  color: var(--c-gray);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-.fp-field label svg {
-  width: 0.813em;
-  height: 0.813em;
-  flex-shrink: 0;
-}
-.fp-field input {
-  width: 100%;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 7px;
-  padding: 9px 12px;
-  font-family: var(--font-main);
-  font-size: 0.781em;
-  font-weight: 500;
-  color: var(--c-white);
-  outline: none;
-  transition: border-color 0.18s, background 0.18s;
-}
-.fp-field input::placeholder { color: var(--c-gray); }
-.fp-field input:focus {
-  border-color: rgba(230,57,70,0.55);
-  background: #141c30;
-}
+    /* Ayırıcı */
+    .fp-divider {
+      height: 1px;
+      background: var(--c-border);
+      margin: 18px 0;
+    }
 
-/* ─── Aksiyon Butonları ─── */
-.fp-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: auto;
-}
+    /* ─── Fotoğraf Bölümü ─── */
+    .fp-photo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
 
-.btn-flip,
-.btn-print {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-main);
-  font-size: 0.75em;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  padding: 11px 16px;
-  cursor: pointer;
-  letter-spacing: 0.4px;
-  transition: all 0.18s;
-}
-.btn-flip svg,
-.btn-print svg {
-  width: 0.938em;
-  height: 0.938em;
-  stroke: currentColor;
-  flex-shrink: 0;
-}
+    .photo-preview {
+      width: 130px;
+      height: 130px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(230, 57, 70, 0.35);
+      background: var(--c-panel);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.btn-flip {
-  background: var(--c-surface);
-  color: var(--c-white);
-  border: 1px solid var(--c-border);
-}
-.btn-flip:hover {
-  border-color: rgba(230,57,70,0.4);
-  background: #161e30;
-}
+    .photo-preview .default-avatar {
+      width: 90px;
+      height: 120px;
+      image-rendering: pixelated;
+    }
 
-.btn-print {
-  background: var(--c-red);
-  color: #fff;
-  box-shadow: 0 2px 10px rgba(230,57,70,0.35);
-}
-.btn-print:hover {
-  background: #ff3d4e;
-  box-shadow: 0 4px 18px rgba(230,57,70,0.45);
-}
-.btn-print:active,
-.btn-flip:active { transform: scale(0.97); }
+    .photo-preview #photoImg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-/* =============================================
+    .photo-upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.688em;
+      font-weight: 600;
+      color: var(--c-gray-lt);
+      border: 1px solid rgba(230, 57, 70, 0.3);
+      border-radius: 6px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: all 0.18s;
+      background: rgba(230, 57, 70, 0.06);
+      letter-spacing: 0.3px;
+    }
+
+    .photo-upload-btn svg {
+      width: 0.813em;
+      height: 0.813em;
+      stroke: var(--c-red);
+    }
+
+    .photo-upload-btn:hover {
+      border-color: var(--c-red);
+      color: var(--c-white);
+      background: rgba(230, 57, 70, 0.12);
+    }
+
+    .photo-clear-btn {
+      font-size: 0.625em;
+      color: var(--c-gray);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .photo-clear-btn:hover {
+      color: var(--c-red);
+    }
+
+    /* ─── Form Alanları ─── */
+    .fp-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .fp-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .fp-field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.625em;
+      font-weight: 600;
+      color: var(--c-gray);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .fp-field label svg {
+      width: 0.813em;
+      height: 0.813em;
+      flex-shrink: 0;
+    }
+
+    .fp-field input {
+      width: 100%;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-family: var(--font-main);
+      font-size: 0.781em;
+      font-weight: 500;
+      color: var(--c-white);
+      outline: none;
+      transition: border-color 0.18s, background 0.18s;
+    }
+
+    .fp-field input::placeholder {
+      color: var(--c-gray);
+    }
+
+    .fp-field input:focus {
+      border-color: rgba(230, 57, 70, 0.55);
+      background: #eef2f7;
+    }
+
+    /* ─── Aksiyon Butonları ─── */
+    .fp-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn-flip,
+    .btn-print {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--font-main);
+      font-size: 0.75em;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      transition: all 0.18s;
+    }
+
+    .btn-flip svg,
+    .btn-print svg {
+      width: 0.938em;
+      height: 0.938em;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    .btn-flip {
+      background: var(--c-surface);
+      color: var(--c-white);
+      border: 1px solid var(--c-border);
+    }
+
+    .btn-flip:hover {
+      border-color: rgba(230, 57, 70, 0.4);
+      background: #161e30;
+      color: #f0f4ff;
+    }
+
+    .btn-print {
+      background: var(--c-red);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(230, 57, 70, 0.35);
+    }
+
+    .btn-print:hover {
+      background: #ff3d4e;
+      box-shadow: 0 4px 18px rgba(230, 57, 70, 0.45);
+    }
+
+    .btn-print:active,
+    .btn-flip:active {
+      transform: scale(0.97);
+    }
+
+    /* =============================================
    3D FLIP KART SAHNESI
    ============================================= */
-.card-scene {
-  perspective: 1400px;
-  perspective-origin: 50% 50%;
-}
+    .card-scene {
+      perspective: 1400px;
+      perspective-origin: 50% 50%;
+    }
 
-.card-flipper {
-  position: relative;
-  width: var(--card-w);
-  height: var(--card-h);
-  transform-style: preserve-3d;
-  transition: transform 0.72s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.card-flipper.flipped {
-  transform: rotateY(180deg);
-}
+    .card-flipper {
+      position: relative;
+      width: var(--card-w);
+      height: var(--card-h);
+      transform-style: preserve-3d;
+      transition: transform 0.72s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-/* Kart yüzleri ortak */
-.id-card {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: var(--card-r);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+    .card-flipper.flipped {
+      transform: rotateY(180deg);
+    }
 
-  --c-white:    #1a1e2e;
-  --c-gray:     #64748b;
-  --c-gray-lt:  #94a3b8;
-  --c-border:   rgba(0,0,0,0.07);
+    /* Kart yüzleri ortak */
+    .id-card {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--card-r);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
 
-  background: #ffffff;
-  border: 1px solid rgba(230,57,70,0.2);
+      --c-white: #1a1e2e;
+      --c-gray: #64748b;
+      --c-gray-lt: #94a3b8;
+      --c-border: rgba(0, 0, 0, 0.07);
 
-  box-shadow:
-    0 2px 4px   rgba(0,0,0,0.06),
-    0 8px 28px  rgba(0,0,0,0.12),
-    0 28px 70px rgba(0,0,0,0.14),
-    0 0 0 1px   rgba(230,57,70,0.08) inset;
+      background: #ffffff;
+      border: 1px solid rgba(230, 57, 70, 0.2);
 
-  overflow: hidden;
-}
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.06),
+        0 8px 28px rgba(0, 0, 0, 0.12),
+        0 28px 70px rgba(0, 0, 0, 0.14),
+        0 0 0 1px rgba(230, 57, 70, 0.08) inset;
 
-.card-back {
-  transform: rotateY(180deg);
-}
+      overflow: hidden;
+    }
 
-.id-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(0,0,0,0.025) 1px, transparent 1px);
-  background-size: 22px 22px;
-  pointer-events: none;
-  z-index: 0;
-}
-.id-card::after {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 280px; height: 280px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(230,57,70,0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
+    .card-back {
+      transform: rotateY(180deg);
+    }
 
-/* ─── Köşe Piksel Aksanları ─── */
-.px-c { display: none; }
+    .id-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-/* ─── Neon Kenar ─── */
-.edge { position: absolute; pointer-events: none; z-index: 5; }
-.edge-top {
-  top: 0; left: 14px; right: 14px; height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--c-red) 30%, var(--c-red) 70%, transparent 100%);
-  opacity: 0.5;
-}
-.edge-left {
-  top: 14px; bottom: 14px; left: 0; width: 1px;
-  background: linear-gradient(180deg, transparent 0%, var(--c-red) 40%, transparent 100%);
-  opacity: 0.28;
-}
+    .id-card::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(230, 57, 70, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-/* =============================================
+    /* ─── Köşe Piksel Aksanları ─── */
+    .px-c {
+      display: none;
+    }
+
+    /* ─── Neon Kenar ─── */
+    .edge {
+      position: absolute;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .edge-top {
+      top: 0;
+      left: 14px;
+      right: 14px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--c-red) 30%, var(--c-red) 70%, transparent 100%);
+      opacity: 0.5;
+    }
+
+    .edge-left {
+      top: 14px;
+      bottom: 14px;
+      left: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent 0%, var(--c-red) 40%, transparent 100%);
+      opacity: 0.28;
+    }
+
+    /* =============================================
    ÖN YÜZ — CARD-FRONT
    ============================================= */
-.card-front {
-  padding: 22px 28px 16px 28px;
-  display: flex;
-  flex-direction: column;
-}
+    .card-front {
+      padding: 22px 28px 16px 28px;
+      display: flex;
+      flex-direction: column;
+    }
 
-.card-header {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.logo-icon { width: 1.375em; height: 1.375em; flex-shrink: 0; }
-.logo-img {
-  height: 2.625em;
-  width: auto;
-  display: block;
-  object-fit: contain;
-}
-.logo-text {
-  font-family: var(--font-pixel);
-  font-size: 1em;
-  letter-spacing: 1px;
-  line-height: 1;
-}
-.card-badge {
-  font-size: 1em;
-  font-weight: 600;
-  letter-spacing: 2.5px;
-  color: var(--c-gray);
-  text-transform: uppercase;
-  border: 1px solid rgba(230,57,70,0.2);
-  padding: 4px 8px;
-  border-radius: 3px;
-  background: rgba(230,57,70,0.05);
-}
+    .card-header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
 
-.h-divider {
-  position: relative; z-index: 2;
-  display: flex; align-items: center;
-  margin: 10px 0 14px 0;
-  flex-shrink: 0;
-}
-.hd-line {
-  flex: 1; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(230,57,70,0.35) 40%, rgba(230,57,70,0.35) 60%, transparent);
-}
-.hd-rhombus {
-  font-size: 0.438em; color: var(--c-red);
-  margin: 0 6px; opacity: 0.8;
-}
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-.card-body {
-  position: relative; z-index: 2;
-  display: flex; align-items: stretch;
-  gap: 28px; flex: 1; min-height: 0;
-}
+    .logo-icon {
+      width: 1.375em;
+      height: 1.375em;
+      flex-shrink: 0;
+    }
 
-.card-left {
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.avatar-outer { position: relative; }
-.avatar-frame {
-  position: relative;
-  width: 185px; height: 185px;
-  border-radius: 10px; overflow: hidden;
-  border: 1.5px solid rgba(230,57,70,0.5);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 4px 16px rgba(0,0,0,0.35);
-}
-.avatar-svg {
-  width: 100%; height: 100%; display: block;
-  image-rendering: pixelated;
-}
-.avatar-photo {
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: top;
-  display: block;
-}
-.avatar-glow-ring {
-  position: absolute; inset: -4px;
-  border-radius: 13px;
-  border: 1px solid rgba(230,57,70,0.14);
-  pointer-events: none;
-  box-shadow: 0 0 12px rgba(230,57,70,0.1);
-}
+    .logo-img {
+      height: 2.625em;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
 
-.card-right {
-  flex: 1; display: flex; align-items: center;
-}
-.info-list {
-  width: 100%; display: flex; flex-direction: column;
-}
-.info-row {
-  display: flex; align-items: center;
-  gap: 14px; padding: 14px 0;
-}
-.info-icon {
-  flex-shrink: 0;
-  width: 2em; height: 2em;
-  border-radius: 7px;
-  background: rgba(230,57,70,0.08);
-  border: 1px solid rgba(230,57,70,0.2);
-  display: flex; align-items: center; justify-content: center;
-}
-.info-icon svg { width: 1em; height: 1em; }
-.info-text { display: flex; flex-direction: column; gap: 3px; }
-.info-label {
-  font-size: 0.7em;
-  font-weight: 500;
-  color: var(--c-gray);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-.info-value {
-  font-size: 1.2em;
-  font-weight: 600;
-  color: var(--c-white);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-.info-sep {
-  height: 1px;
-  background: linear-gradient(90deg, rgba(0,0,0,0.07), rgba(0,0,0,0.02));
-  margin: 0 0 0 46px;
-}
+    .logo-text {
+      font-family: var(--font-pixel);
+      font-size: 1em;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
 
-.card-footer {
-  position: relative; z-index: 2;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-  margin-top: 12px; padding-top: 10px;
-  border-top: 1px solid rgba(0,0,0,0.07);
-}
-.game-strip {
-  display: flex; align-items: center; gap: 8px; opacity: 0.7;
-}
-.gi { display: block; }
-.gi-pad      { width: auto; height: 1.2em; }
-.gi-pac      { width: auto; height: 1.2em; }
-.gi-invader  { width: auto; height: 1.2em; }
-.gi-star     { width: auto; height: 1.2em; }
-.gi-pellets  { width: 2.25em; height: 0.5em; }
-.gi-mushroom { width: auto; height: 1.2em; }
-.gi-ghost    { width: auto; height: 1.2em; }
+    .card-badge {
+      font-size: 1em;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      color: var(--c-gray);
+      text-transform: uppercase;
+      border: 1px solid rgba(230, 57, 70, 0.2);
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: rgba(230, 57, 70, 0.05);
+    }
 
-.footer-center {
-  display: flex; align-items: center; gap: 6px;
-  position: absolute; left: 50%; transform: translateX(-50%);
-}
-.fc-dot { font-size: 0.313em; color: var(--c-red); opacity: 0.6; }
-.fc-url { font-size: 0.813em; font-weight: 400; color: var(--c-gray); letter-spacing: 1px; }
-.footer-right {
-  flex: 0 0 auto;
-  width: 100px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-.card-id {
-  font-size: 1.2em;
-  font-weight: 600;
-  color: var(--c-red);
-  letter-spacing: 1px;
-  opacity: 0.85;
-  font-family: var(--font-main);
-  white-space: nowrap;
-}
+    .h-divider {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      margin: 10px 0 14px 0;
+      flex-shrink: 0;
+    }
 
-/* =============================================
+    .hd-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(230, 57, 70, 0.35) 40%, rgba(230, 57, 70, 0.35) 60%, transparent);
+    }
+
+    .hd-rhombus {
+      font-size: 1em;
+      color: var(--c-red);
+      margin: 0 6px;
+      opacity: 0.8;
+    }
+
+    .card-body {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: stretch;
+      gap: 28px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .card-left {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-outer {
+      position: relative;
+    }
+
+    .avatar-frame {
+      position: relative;
+      width: 185px;
+      height: 185px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1.5px solid rgba(230, 57, 70, 0.5);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .avatar-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    .avatar-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+    }
+
+    .avatar-glow-ring {
+      position: absolute;
+      inset: -4px;
+      border-radius: 13px;
+      border: 1px solid rgba(230, 57, 70, 0.14);
+      pointer-events: none;
+      box-shadow: 0 0 12px rgba(230, 57, 70, 0.1);
+    }
+
+    .card-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .info-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+    }
+
+    .info-icon {
+      flex-shrink: 0;
+      width: 2em;
+      height: 2em;
+      border-radius: 7px;
+      background: rgba(230, 57, 70, 0.08);
+      border: 1px solid rgba(230, 57, 70, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-icon svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    .info-text {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .info-label {
+      font-size: 0.7em;
+      font-weight: 500;
+      color: var(--c-gray);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .info-value {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: var(--c-white);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .info-sep {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.02));
+      margin: 0 0 0 46px;
+    }
+
+    .card-footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(0, 0, 0, 0.07);
+    }
+
+    .game-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.7;
+    }
+
+    .gi {
+      display: block;
+    }
+
+    .gi-pad {
+      width: auto;
+      height: 1.2em;
+    }
+
+    .gi-pac {
+      width: auto;
+      height: 1.2em;
+    }
+
+    .gi-invader {
+      width: auto;
+      height: 1.2em;
+    }
+
+    .gi-star {
+      width: auto;
+      height: 1.2em;
+    }
+
+    .gi-pellets {
+      width: 2.25em;
+      height: 0.5em;
+    }
+
+    .gi-mushroom {
+      width: auto;
+      height: 1.2em;
+    }
+
+    .gi-ghost {
+      width: auto;
+      height: 1.2em;
+    }
+
+    .footer-center {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .fc-dot {
+      font-size: 0.313em;
+      color: var(--c-red);
+      opacity: 0.6;
+    }
+
+    .fc-url {
+      font-size: 0.813em;
+      font-weight: 400;
+      color: var(--c-gray);
+      letter-spacing: 1px;
+    }
+
+    .footer-right {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .card-id {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: var(--c-red);
+      letter-spacing: 0.5px;
+      opacity: 0.85;
+      font-family: var(--font-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+    }
+
+    /* =============================================
    ARKA YÜZ — CARD-BACK
    ============================================= */
-.back-deco {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-}
-.deco-ghost {
-  position: absolute;
-  right: -20px; bottom: -10px;
-  width: 10em; height: 13.125em;
-}
-.deco-pacman {
-  position: absolute;
-  left: -30px; top: 40px;
-  width: 11.25em; height: 11.25em;
-}
-.deco-back-invader {
-  position: absolute;
-  right: 22px; top: 14px;
-  width: 4.5em; height: 3em;
-  opacity: 0.07;
-}
-.deco-back-star {
-  position: absolute;
-  left: 26px; top: 12px;
-  width: 3.25em; height: 3em;
-  opacity: 0.45;
-}
-.front-deco {
-  position: absolute;
-  inset: 0; z-index: 0; pointer-events: none;
-}
-.deco-front-invader {
-  position: absolute;
-  right: -18px; top: 72px;
-  width: 9.75em; height: 6.5em;
-  opacity: 0.055;
-}
-.deco-front-mushroom {
-  position: absolute;
-  left: -12px; bottom: 20px;
-  width: 6em; height: 7em;
-  opacity: 0.055;
-}
+    .back-deco {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-.mag-strip {
-  position: relative; z-index: 2;
-  width: 100%; height: 44px;
-  background: linear-gradient(180deg, #0a0a12 0%, #06080f 100%);
-  margin-top: 28px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5) inset;
-  flex-shrink: 0;
-}
-.mag-strip::before, .mag-strip::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; height: 1px;
-  background: rgba(230,57,70,0.25);
-}
-.mag-strip::before { top: 0; }
-.mag-strip::after  { bottom: 0; }
+    .deco-ghost {
+      position: absolute;
+      right: -20px;
+      bottom: -10px;
+      width: 10em;
+      height: 13.125em;
+    }
 
-.back-content {
-  position: relative; z-index: 2;
-  flex: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 10px;
-  padding: 0 40px;
-}
-.back-logo {
-  display: flex; align-items: center; gap: 10px;
-}
-.back-logo-icon { width: 1.75em; height: 1.75em; }
-.back-logo-img {
-  width: 13.75em;
-  height: auto;
-  display: block;
-  object-fit: contain;
-}
-.back-logo-text {
-  font-family: var(--font-pixel);
-  font-size: 1.25em;
-  letter-spacing: 1px;
-  line-height: 1;
-}
-.back-divider {
-  width: 100%;
-  display: flex; align-items: center; gap: 10px;
-  margin: 6px 0;
-}
-.bd-line {
-  flex: 1; height: 1px;
-  background: rgba(255,255,255,0.07);
-}
-.bd-icon svg { width: 1.5em; height: auto; display: block; }
+    .deco-pacman {
+      position: absolute;
+      left: -30px;
+      top: 40px;
+      width: 11.25em;
+      height: 11.25em;
+    }
 
-.card-policy {
-  width: 100%;
-  display: flex; flex-direction: column;
-  gap: 8px; margin-top: 4px;
-  padding: 12px 14px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 6px;
-}
-.policy-main {
-  font-size: 1em; font-weight: 400;
-  color: var(--c-gray-lt);
-  line-height: 1.65; text-align: center;
-}
-.policy-main strong { color: var(--c-white); font-weight: 600; }
-.policy-divider { height: 1px; background: rgba(255,255,255,0.07); }
-.policy-lost {
-  display: flex; align-items: center; justify-content: center;
-  gap: 6px; font-size: 1em;
-  color: var(--c-gray); line-height: 1.5; flex-wrap: wrap;
-}
-.policy-lost svg { width: 0.75em; height: 0.75em; flex-shrink: 0; }
-.policy-contact { color: var(--c-red); font-weight: 600; letter-spacing: 0.3px; }
-.policy-sep { color: var(--c-gray); opacity: 0.5; }
+    .deco-back-invader {
+      position: absolute;
+      right: 22px;
+      top: 14px;
+      width: 4.5em;
+      height: 3em;
+      opacity: 0.07;
+    }
 
-.back-footer {
-  position: relative; z-index: 2;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 28px 14px 28px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  flex-shrink: 0;
-}
-.back-game-icons {
-  display: flex; align-items: center; gap: 6px; opacity: 0.6;
-}
-.back-game-icons svg {
-  height: 1.2em !important;
-  width: auto !important;
-}
-.back-game-icons .bg-pellets {
-  width: 2.25em !important;
-  height: 0.5em !important;
-}
-.back-website { display: flex; align-items: center; gap: 5px; }
-.back-note {
-  font-size: 1.2em; color: var(--c-gray);
-  letter-spacing: 0.8px; opacity: 0.7;
-}
+    .deco-back-star {
+      position: absolute;
+      left: 26px;
+      top: 12px;
+      width: 3.25em;
+      height: 3em;
+      opacity: 0.45;
+    }
 
-.card-back {
-  display: flex; flex-direction: column; padding: 0;
-}
-.card-back .back-divider .bd-line { background: rgba(0,0,0,0.08); }
-.card-back .back-footer { border-top: 1px solid rgba(0,0,0,0.07); }
-.card-back .card-policy { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.07); }
-.card-back .policy-main { color: #475569; }
-.card-back .policy-main strong { color: #1a1e2e; }
-.card-back .policy-lost { color: #64748b; }
-.card-back .policy-divider { background: rgba(0,0,0,0.07); }
-.card-back .back-note { color: #94a3b8; }
+    .front-deco {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-.card-side-label { display: flex; align-items: center; gap: 6px; }
-.csl-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.15);
-  transition: background 0.3s;
-}
-.csl-dot.active {
-  background: var(--c-red);
-  box-shadow: 0 0 6px var(--c-red);
-}
+    .deco-front-invader {
+      position: absolute;
+      right: -18px;
+      top: 72px;
+      width: 9.75em;
+      height: 6.5em;
+      opacity: 0.055;
+    }
 
-/* =============================================
+    .deco-front-mushroom {
+      position: absolute;
+      left: -12px;
+      bottom: 20px;
+      width: 6em;
+      height: 7em;
+      opacity: 0.055;
+    }
+
+    .mag-strip {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 44px;
+      background: linear-gradient(180deg, #0a0a12 0%, #06080f 100%);
+      margin-top: 28px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5) inset;
+      flex-shrink: 0;
+    }
+
+    .mag-strip::before,
+    .mag-strip::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(230, 57, 70, 0.25);
+    }
+
+    .mag-strip::before {
+      top: 0;
+    }
+
+    .mag-strip::after {
+      bottom: 0;
+    }
+
+    .back-content {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 40px;
+    }
+
+    .back-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-logo-icon {
+      width: 1.75em;
+      height: 1.75em;
+    }
+
+    .back-logo-img {
+      width: 13.75em;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .back-logo-text {
+      font-family: var(--font-pixel);
+      font-size: 1.25em;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .back-divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0;
+    }
+
+    .bd-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .bd-icon svg {
+      width: 1.5em;
+      height: auto;
+      display: block;
+    }
+
+    .card-policy {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 6px;
+    }
+
+    .policy-main {
+      font-size: 1em;
+      font-weight: 400;
+      color: var(--c-gray-lt);
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .policy-main strong {
+      color: var(--c-white);
+      font-weight: 600;
+    }
+
+    .policy-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .policy-lost {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 1em;
+      color: var(--c-gray);
+      line-height: 1.5;
+      flex-wrap: wrap;
+    }
+
+    .policy-lost svg {
+      width: 0.75em;
+      height: 0.75em;
+      flex-shrink: 0;
+    }
+
+    .policy-contact {
+      color: var(--c-red);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .policy-sep {
+      color: var(--c-gray);
+      opacity: 0.5;
+    }
+
+    .back-footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 28px 14px 28px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
+    }
+
+    .back-game-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.6;
+    }
+
+    .back-game-icons svg {
+      height: 1.2em !important;
+      width: auto !important;
+    }
+
+    .back-game-icons .bg-pellets {
+      width: 2.25em !important;
+      height: 0.5em !important;
+    }
+
+    .back-website {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .back-note {
+      font-size: 1.2em;
+      color: var(--c-gray);
+      letter-spacing: 0.8px;
+      opacity: 0.7;
+    }
+
+    .card-back {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .card-back .back-divider .bd-line {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .card-back .back-footer {
+      border-top: 1px solid rgba(0, 0, 0, 0.07);
+    }
+
+    .card-back .card-policy {
+      background: rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+    }
+
+    .card-back .policy-main {
+      color: #475569;
+    }
+
+    .card-back .policy-main strong {
+      color: #1a1e2e;
+    }
+
+    .card-back .policy-lost {
+      color: #64748b;
+    }
+
+    .card-back .policy-divider {
+      background: rgba(0, 0, 0, 0.07);
+    }
+
+    .card-back .back-note {
+      color: #94a3b8;
+    }
+
+    .card-side-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .csl-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.15);
+      transition: background 0.3s;
+    }
+
+    .csl-dot.active {
+      background: var(--c-red);
+      box-shadow: 0 0 6px var(--c-red);
+    }
+
+    /* =============================================
    PRINT / PDF
    ============================================= */
-@media print {
-  @page { size: A4 landscape; margin: 0; }
-  body > *:not(#print-container) { display: none !important; }
-  html { font-size: 16px !important; }
-  body, html { background: transparent !important; margin: 0 !important; padding: 0 !important; }
-  #print-container {
-    display: flex; flex-direction: row;
-    align-items: center; justify-content: center;
-    gap: 10mm; width: 297mm; height: 210mm;
-  }
-  .print-page {
-    width: 102.5mm; height: 64.5mm;
-    overflow: hidden; position: relative; flex-shrink: 0;
-  }
-  .print-page .id-card {
-    position: absolute !important;
-    top: 0 !important; left: 0 !important;
-    width: 646px !important; height: 406px !important;
-    transform: scale(0.6) !important;
-    transform-origin: top left !important;
-    backface-visibility: visible !important;
-    -webkit-backface-visibility: visible !important;
-    border-radius: 4px !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  .card-side-label { display: none !important; }
-}
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+
+      body>*:not(#print-container) {
+        display: none !important;
+      }
+
+      html {
+        font-size: 16px !important;
+      }
+
+      body,
+      html {
+        background: transparent !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      #print-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10mm;
+        width: 297mm;
+        height: 210mm;
+      }
+
+      .print-page {
+        width: 86.5mm;
+        height: 54.5mm;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+        border-radius: 7px;
+      }
+
+      .print-page .id-card {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 646px !important;
+        height: 406px !important;
+        transform: scale(0.5061) !important;
+        transform-origin: top left !important;
+        backface-visibility: visible !important;
+        -webkit-backface-visibility: visible !important;
+        border-radius: 14px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .card-side-label {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 
@@ -791,7 +1149,48 @@ body {
 
       <div class="fp-header">
         <div class="fp-logo">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 369.27 108.17" class="fp-logo-img" aria-label="Turkpin"><path fill="#231f20" d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"/><path fill="#231f20" d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"/><path fill="#231f20" d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"/><polygon fill="#231f20" points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"/><path fill="#231f20" d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"/><rect fill="#231f20" x="289.83" y="25.57" width="14.09" height="57.82"/><path fill="#231f20" d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"/><path fill="#ec2027" d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 369.27 108.17"
+            class="fp-logo-img"
+            aria-label="Turkpin"
+          >
+            <path
+              fill="#231f20"
+              d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"
+            />
+            <path
+              fill="#231f20"
+              d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"
+            />
+            <path
+              fill="#231f20"
+              d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"
+            />
+            <polygon
+              fill="#231f20"
+              points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"
+            />
+            <path
+              fill="#231f20"
+              d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"
+            />
+            <rect
+              fill="#231f20"
+              x="289.83"
+              y="25.57"
+              width="14.09"
+              height="57.82"
+            />
+            <path
+              fill="#231f20"
+              d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"
+            />
+            <path
+              fill="#ec2027"
+              d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"
+            />
+          </svg>
         </div>
         <p class="fp-subtitle">Personel Kimlik Kartı Oluşturucu</p>
       </div>
@@ -1193,8 +1592,7 @@ body {
           <input
             type="text"
             id="fName"
-            placeholder="Adınız ve soyadınız"
-            value="Oktay Aydoğan"
+            placeholder="John Doe"
             autocomplete="off"
           >
         </div>
@@ -1262,8 +1660,7 @@ body {
           <input
             type="text"
             id="fRole"
-            placeholder="Unvanınız"
-            value="Senior Software Developer"
+            placeholder="Software Developer"
             autocomplete="off"
           >
         </div>
@@ -1306,8 +1703,7 @@ body {
           <input
             type="text"
             id="fDept"
-            placeholder="Departmanınız"
-            value="Yazılım Geliştirme"
+            placeholder="Engineering"
             autocomplete="off"
           >
         </div>
@@ -1606,7 +2002,48 @@ body {
             <!-- HEADER -->
             <header class="card-header">
               <div class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 369.27 108.17" class="logo-img" aria-label="Turkpin"><path fill="#231f20" d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"/><path fill="#231f20" d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"/><path fill="#231f20" d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"/><polygon fill="#231f20" points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"/><path fill="#231f20" d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"/><rect fill="#231f20" x="289.83" y="25.57" width="14.09" height="57.82"/><path fill="#231f20" d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"/><path fill="#ec2027" d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 369.27 108.17"
+                  class="logo-img"
+                  aria-label="Turkpin"
+                >
+                  <path
+                    fill="#231f20"
+                    d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"
+                  />
+                  <polygon
+                    fill="#231f20"
+                    points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"
+                  />
+                  <rect
+                    fill="#231f20"
+                    x="289.83"
+                    y="25.57"
+                    width="14.09"
+                    height="57.82"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"
+                  />
+                  <path
+                    fill="#ec2027"
+                    d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"
+                  />
+                </svg>
               </div>
               <div class="card-badge">PERSONEL KİMLİK KARTI</div>
             </header>
@@ -1983,7 +2420,7 @@ body {
                       <span
                         class="info-value"
                         id="dispName"
-                      >Oktay Aydoğan</span>
+                      >John Doe</span>
                     </div>
                   </div>
 
@@ -2053,7 +2490,7 @@ body {
                       <span
                         class="info-value"
                         id="dispRole"
-                      >Senior Software Developer</span>
+                      >Software Developer</span>
                     </div>
                   </div>
 
@@ -2098,7 +2535,7 @@ body {
                       <span
                         class="info-value"
                         id="dispDept"
-                      >Yazılım Geliştirme</span>
+                      >Engineering</span>
                     </div>
                   </div>
 
@@ -2563,7 +3000,53 @@ body {
 
               <!-- Büyük Logo (full) -->
               <div class="back-logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 369.27 169.15" class="back-logo-img" aria-label="Turkpin"><path fill="#231f20" d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"/><path fill="#231f20" d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"/><path fill="#231f20" d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"/><polygon fill="#231f20" points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"/><path fill="#231f20" d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"/><rect fill="#231f20" x="289.83" y="25.57" width="14.09" height="57.82"/><path fill="#231f20" d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"/><path fill="#ec2027" d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"/><text fill="#231f20" font-size="35.43" font-family="ShadowsIntoLight, Shadows Into Light" transform="translate(28.11 154.13)">Oyun Nerede, Biz Orada</text></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 369.27 169.15"
+                  class="back-logo-img"
+                  aria-label="Turkpin"
+                >
+                  <path
+                    fill="#231f20"
+                    d="M40.69,80.72q-3.52,1.45-7.1,2.61a24.21,24.21,0,0,1-7.47,1.16q-9.48,0-14.64-5.53T6.32,63.23V36.14H0V25.57H6.32V5.9H20.53V25.57H37.65V36.14H20.53V63.59a10.64,10.64,0,0,0,1.82,6.56,6,6,0,0,0,5.1,2.43,17.15,17.15,0,0,0,4.86-.79,25.3,25.3,0,0,0,5.1-2.12Z"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M64.5,61.17a15.71,15.71,0,0,0,2.19,8.56,7.45,7.45,0,0,0,6.8,3.46,11.2,11.2,0,0,0,6.13-1.82,24.87,24.87,0,0,0,5.89-5.71V25.57H99.73V83.39H85.51V77.08a20.48,20.48,0,0,1-7,5.52,19,19,0,0,1-8.32,1.89A20.27,20.27,0,0,1,62.5,83a18.11,18.11,0,0,1-6.32-4.31,20.5,20.5,0,0,1-4.31-7,26.22,26.22,0,0,1-1.58-9.47V25.57H64.5Z"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M141.76,37.11a10.75,10.75,0,0,0-8,3.1,20.19,20.19,0,0,0-4.68,7.35V83.39H114.91V25.57h14.21v9.72a28.43,28.43,0,0,1,7-7.95,13.25,13.25,0,0,1,8.08-2.86,16,16,0,0,1,5.22,1,32.39,32.39,0,0,1,6.44,3.28L151,41q-6-3.89-9.23-3.89"
+                  />
+                  <polygon
+                    fill="#231f20"
+                    points="216.58 25.57 191.31 49.5 217.19 83.39 199.7 83.39 177.71 53.51 177.35 53.63 177.35 83.39 163.13 83.39 163.13 0.79 177.35 0.79 177.35 45.13 177.47 45.13 196.9 25.57 216.58 25.57"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M223.87,108.17V25.57h14.21v4.5a39.27,39.27,0,0,1,6.07-3.89,15.16,15.16,0,0,1,7-1.7,23.42,23.42,0,0,1,10.51,2.31,24.79,24.79,0,0,1,8.08,6.37A29,29,0,0,1,275,42.82a38.77,38.77,0,0,1,1.82,12A35.14,35.14,0,0,1,275,66.45a28.7,28.7,0,0,1-5.35,9.41,24.92,24.92,0,0,1-8.32,6.32,24.57,24.57,0,0,1-10.69,2.31,19.94,19.94,0,0,1-6.56-1.1,26.9,26.9,0,0,1-5.95-2.91v27.69Zm24.29-72.51a11.31,11.31,0,0,0-5.4,1.39,20,20,0,0,0-4.68,3.46V69.18a24.33,24.33,0,0,0,4.74,3.1,11.79,11.79,0,0,0,5.34,1.27,11.64,11.64,0,0,0,5.77-1.45,13.58,13.58,0,0,0,4.44-4,20.52,20.52,0,0,0,2.85-6,24.94,24.94,0,0,0,1-7.29,30.91,30.91,0,0,0-.8-7.05A20.08,20.08,0,0,0,259,41.67a13.48,13.48,0,0,0-4.38-4.38,12.11,12.11,0,0,0-6.44-1.63"
+                  />
+                  <rect
+                    fill="#231f20"
+                    x="289.83"
+                    y="25.57"
+                    width="14.09"
+                    height="57.82"
+                  />
+                  <path
+                    fill="#231f20"
+                    d="M355.06,47.8A16.35,16.35,0,0,0,353,39.18q-2.06-3.41-6.8-3.4a11.17,11.17,0,0,0-6.26,1.88,24.5,24.5,0,0,0-5.77,5.77v40H320V25.57h14.21l.13,6.44a20.14,20.14,0,0,1,6.86-5.59,18.4,18.4,0,0,1,8.2-1.94,20.31,20.31,0,0,1,7.71,1.46,18.11,18.11,0,0,1,6.32,4.31,20.55,20.55,0,0,1,4.31,7,26.17,26.17,0,0,1,1.58,9.36v36.8H355.06Z"
+                  />
+                  <path
+                    fill="#ec2027"
+                    d="M304.18,7.64A7.35,7.35,0,0,1,302,13a7.63,7.63,0,0,1-10.8,0,7.36,7.36,0,0,1-2.24-5.39,7.36,7.36,0,0,1,2.24-5.4,7.63,7.63,0,0,1,10.8,0,7.35,7.35,0,0,1,2.23,5.4"
+                  /><text
+                    fill="#231f20"
+                    font-size="35.43"
+                    font-family="ShadowsIntoLight, Shadows Into Light"
+                    transform="translate(28.11 154.13)"
+                  >Oyun Nerede, Biz Orada</text>
+                </svg>
               </div>
 
               <!-- İnce ayırıcı -->
@@ -2892,179 +3375,179 @@ body {
   </div><!-- /app -->
 
   <script>
-/* =============================================
-   TURKPIN PERSONEL KİMLİK KARTI — script.js
-   ============================================= */
+    /* =============================================
+       TURKPIN PERSONEL KİMLİK KARTI — script.js
+       ============================================= */
 
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
 
-  /* ─── Elementler ─── */
-  const fName         = document.getElementById('fName');
-  const fRole         = document.getElementById('fRole');
-  const fDept         = document.getElementById('fDept');
-  const fId           = document.getElementById('fId');
-  const fPhoto        = document.getElementById('fPhoto');
+      /* ─── Elementler ─── */
+      const fName = document.getElementById('fName');
+      const fRole = document.getElementById('fRole');
+      const fDept = document.getElementById('fDept');
+      const fId = document.getElementById('fId');
+      const fPhoto = document.getElementById('fPhoto');
 
-  const dispName      = document.getElementById('dispName');
-  const dispRole      = document.getElementById('dispRole');
-  const dispDept      = document.getElementById('dispDept');
-  const dispId        = document.getElementById('dispId');
+      const dispName = document.getElementById('dispName');
+      const dispRole = document.getElementById('dispRole');
+      const dispDept = document.getElementById('dispDept');
+      const dispId = document.getElementById('dispId');
 
-  const cardAvatar    = document.getElementById('cardAvatar');
-  const cardPhoto     = document.getElementById('cardPhoto');
+      const cardAvatar = document.getElementById('cardAvatar');
+      const cardPhoto = document.getElementById('cardPhoto');
 
-  const photoPreview  = document.getElementById('photoPreview');
-  const photoImg      = document.getElementById('photoImg');
-  const btnPhotoClear = document.getElementById('btnPhotoClear');
+      const photoPreview = document.getElementById('photoPreview');
+      const photoImg = document.getElementById('photoImg');
+      const btnPhotoClear = document.getElementById('btnPhotoClear');
 
-  const cardFront     = document.getElementById('cardFront');
-  const cardBack      = document.getElementById('cardBack');
-  const cardFlipper   = document.getElementById('cardFlipper');
-  const btnFlip       = document.getElementById('btnFlip');
-  const btnPrint      = document.getElementById('btnPrint');
-  const dotFront      = document.getElementById('dotFront');
-  const dotBack       = document.getElementById('dotBack');
+      const cardFront = document.getElementById('cardFront');
+      const cardBack = document.getElementById('cardBack');
+      const cardFlipper = document.getElementById('cardFlipper');
+      const btnFlip = document.getElementById('btnFlip');
+      const btnPrint = document.getElementById('btnPrint');
+      const dotFront = document.getElementById('dotFront');
+      const dotBack = document.getElementById('dotBack');
 
-  let isFlipped = false;
+      let isFlipped = false;
 
-  /* ─── Form → Kart Canlı Senkronizasyon ─── */
+      /* ─── Form → Kart Canlı Senkronizasyon ─── */
 
-  function syncCard() {
-    const name = fName.value.trim() || 'Ad Soyad';
-    const role = fRole.value.trim() || 'Pozisyon';
-    const dept = fDept.value.trim() || 'Departman';
-    const id   = fId.value.trim()   || '';
+      function syncCard() {
+        const name = fName.value.trim() || fName.placeholder;
+        const role = fRole.value.trim() || fRole.placeholder;
+        const dept = fDept.value.trim() || fDept.placeholder;
+        const id   = fId.value.trim();
 
-    if (dispName) dispName.textContent = name;
-    if (dispRole) dispRole.textContent = role;
-    if (dispDept) dispDept.textContent = dept;
-    if (dispId)   dispId.textContent   = id;
-  }
-
-  fName.addEventListener('input', syncCard);
-  fRole.addEventListener('input', syncCard);
-  fDept.addEventListener('input', syncCard);
-  fId.addEventListener('input', syncCard);
-
-  /* ─── Fotoğraf Yükleme ─── */
-  fPhoto.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const src = ev.target.result;
-
-      // Form panel önizleme
-      const defaultAvatarFp = photoPreview.querySelector('.default-avatar');
-      if (defaultAvatarFp) defaultAvatarFp.style.display = 'none';
-      photoImg.src = src;
-      photoImg.style.display = 'block';
-      btnPhotoClear.style.display = 'inline-block';
-
-      // Kart üzerindeki avatar → fotoğraf
-      if (cardAvatar) cardAvatar.style.display = 'none';
-      if (cardPhoto) {
-        cardPhoto.src = src;
-        cardPhoto.style.display = 'block';
+        if (dispName) dispName.textContent = name;
+        if (dispRole) dispRole.textContent = role;
+        if (dispDept) dispDept.textContent = dept;
+        if (dispId)   dispId.textContent   = id;
       }
-    };
-    reader.readAsDataURL(file);
-  });
 
-  /* ─── Fotoğraf Kaldır ─── */
-  btnPhotoClear.addEventListener('click', () => {
-    fPhoto.value = '';
-    photoImg.src = '';
-    photoImg.style.display = 'none';
-    btnPhotoClear.style.display = 'none';
+      fName.addEventListener('input', syncCard);
+      fRole.addEventListener('input', syncCard);
+      fDept.addEventListener('input', syncCard);
+      fId.addEventListener('input', syncCard);
 
-    const defaultAvatarFp = photoPreview.querySelector('.default-avatar');
-    if (defaultAvatarFp) defaultAvatarFp.style.display = 'block';
+      /* ─── Fotoğraf Yükleme ─── */
+      fPhoto.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    if (cardPhoto) {
-      cardPhoto.src = '';
-      cardPhoto.style.display = 'none';
-    }
-    if (cardAvatar) cardAvatar.style.display = 'block';
-  });
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const src = ev.target.result;
 
-  /* ─── Kart Çevirme (3D Flip) ─── */
-  function flipCard() {
-    isFlipped = !isFlipped;
-    cardFlipper.classList.toggle('flipped', isFlipped);
+          // Form panel önizleme
+          const defaultAvatarFp = photoPreview.querySelector('.default-avatar');
+          if (defaultAvatarFp) defaultAvatarFp.style.display = 'none';
+          photoImg.src = src;
+          photoImg.style.display = 'block';
+          btnPhotoClear.style.display = 'inline-block';
 
-    dotFront.classList.toggle('active', !isFlipped);
-    dotBack.classList.toggle('active', isFlipped);
+          // Kart üzerindeki avatar → fotoğraf
+          if (cardAvatar) cardAvatar.style.display = 'none';
+          if (cardPhoto) {
+            cardPhoto.src = src;
+            cardPhoto.style.display = 'block';
+          }
+        };
+        reader.readAsDataURL(file);
+      });
 
-    const btnLabel = btnFlip.querySelector('svg') ? btnFlip : null;
-    if (btnLabel) {
-      const textNode = [...btnFlip.childNodes].find(n => n.nodeType === 3);
-      if (textNode) textNode.textContent = isFlipped ? ' Öne Çevir' : ' Kartı Çevir';
-    }
-  }
+      /* ─── Fotoğraf Kaldır ─── */
+      btnPhotoClear.addEventListener('click', () => {
+        fPhoto.value = '';
+        photoImg.src = '';
+        photoImg.style.display = 'none';
+        btnPhotoClear.style.display = 'none';
 
-  btnFlip.addEventListener('click', flipCard);
+        const defaultAvatarFp = photoPreview.querySelector('.default-avatar');
+        if (defaultAvatarFp) defaultAvatarFp.style.display = 'block';
 
-  /* ─── Yazdır / PDF ─── */
-  btnPrint.addEventListener('click', () => {
-    // Her iki kartı klonla, geçici print container'a yerleştir
-    const front = cardFront.cloneNode(true);
-    const back  = cardBack.cloneNode(true);
+        if (cardPhoto) {
+          cardPhoto.src = '';
+          cardPhoto.style.display = 'none';
+        }
+        if (cardAvatar) cardAvatar.style.display = 'block';
+      });
 
-    // Arka yüzün rotateY(180deg) transform'unu sıfırla
-    back.style.transform = '';
+      /* ─── Kart Çevirme (3D Flip) ─── */
+      function flipCard() {
+        isFlipped = !isFlipped;
+        cardFlipper.classList.toggle('flipped', isFlipped);
 
-    const pc = document.createElement('div');
-    pc.id = 'print-container';
+        dotFront.classList.toggle('active', !isFlipped);
+        dotBack.classList.toggle('active', isFlipped);
 
-    const p1 = document.createElement('div');
-    p1.className = 'print-page';
-    p1.appendChild(front);
+        const btnLabel = btnFlip.querySelector('svg') ? btnFlip : null;
+        if (btnLabel) {
+          const textNode = [...btnFlip.childNodes].find(n => n.nodeType === 3);
+          if (textNode) textNode.textContent = isFlipped ? ' Öne Çevir' : ' Kartı Çevir';
+        }
+      }
 
-    const p2 = document.createElement('div');
-    p2.className = 'print-page';
-    p2.appendChild(back);
+      btnFlip.addEventListener('click', flipCard);
 
-    pc.appendChild(p1);
-    pc.appendChild(p2);
-    document.body.appendChild(pc);
+      /* ─── Yazdır / PDF ─── */
+      btnPrint.addEventListener('click', () => {
+        // Her iki kartı klonla, geçici print container'a yerleştir
+        const front = cardFront.cloneNode(true);
+        const back = cardBack.cloneNode(true);
 
-    // Print bittikten sonra container'ı temizle
-    window.addEventListener('afterprint', () => pc.remove(), { once: true });
-    window.print();
-  });
+        // Arka yüzün rotateY(180deg) transform'unu sıfırla
+        back.style.transform = '';
 
-  /* ─── Kart 3D Tilt (Hover Efekti) ─── */
-  const MAX_TILT = 5;
+        const pc = document.createElement('div');
+        pc.id = 'print-container';
 
-  cardFlipper.addEventListener('mousemove', (e) => {
-    if (cardFlipper.style.transition &&
-        cardFlipper.style.transition.includes('0.72s')) return;
+        const p1 = document.createElement('div');
+        p1.className = 'print-page';
+        p1.appendChild(front);
 
-    const rect  = cardFlipper.getBoundingClientRect();
-    const cx    = rect.left + rect.width  / 2;
-    const cy    = rect.top  + rect.height / 2;
-    const dx    = (e.clientX - cx) / (rect.width  / 2);
-    const dy    = (e.clientY - cy) / (rect.height / 2);
-    const rotX  = (-dy * MAX_TILT).toFixed(2);
-    const rotY  = ( dx * MAX_TILT).toFixed(2);
+        const p2 = document.createElement('div');
+        p2.className = 'print-page';
+        p2.appendChild(back);
 
-    cardFlipper.style.transform = isFlipped
-      ? `rotateY(180deg) rotateX(${rotX}deg) rotateY(${-rotY}deg) scale(1.01)`
-      : `perspective(1200px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.01)`;
-    cardFlipper.style.transition = 'transform 0.08s linear';
-  });
+        pc.appendChild(p1);
+        pc.appendChild(p2);
+        document.body.appendChild(pc);
 
-  cardFlipper.addEventListener('mouseleave', () => {
-    cardFlipper.style.transform = isFlipped ? 'rotateY(180deg)' : '';
-    cardFlipper.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1)';
-  });
+        // Print bittikten sonra container'ı temizle
+        window.addEventListener('afterprint', () => pc.remove(), { once: true });
+        window.print();
+      });
 
-  /* ─── İlk Senkronizasyon ─── */
-  syncCard();
+      /* ─── Kart 3D Tilt (Hover Efekti) ─── */
+      const MAX_TILT = 5;
 
-});
+      cardFlipper.addEventListener('mousemove', (e) => {
+        if (cardFlipper.style.transition &&
+          cardFlipper.style.transition.includes('0.72s')) return;
+
+        const rect = cardFlipper.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / (rect.width / 2);
+        const dy = (e.clientY - cy) / (rect.height / 2);
+        const rotX = (-dy * MAX_TILT).toFixed(2);
+        const rotY = (dx * MAX_TILT).toFixed(2);
+
+        cardFlipper.style.transform = isFlipped
+          ? `rotateY(180deg) rotateX(${rotX}deg) rotateY(${-rotY}deg) scale(1.01)`
+          : `perspective(1200px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.01)`;
+        cardFlipper.style.transition = 'transform 0.08s linear';
+      });
+
+      cardFlipper.addEventListener('mouseleave', () => {
+        cardFlipper.style.transform = isFlipped ? 'rotateY(180deg)' : '';
+        cardFlipper.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1)';
+      });
+
+      /* ─── İlk Senkronizasyon ─── */
+      syncCard();
+
+    });
   </script>
 </body>
 
