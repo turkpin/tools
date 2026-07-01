@@ -62,8 +62,23 @@
             </div>
         </div>
 
+        <!-- Options Section -->
+        <div class="mt-6 bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <input 
+                    type="checkbox" 
+                    id="naturalSort" 
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    checked
+                >
+                <label for="naturalSort" class="ml-2 text-sm font-medium text-gray-700">
+                    Use natural sort (e.g., "users" before "user_permissions")
+                </label>
+            </div>
+        </div>
+
         <!-- Info Section -->
-        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h2 class="text-lg font-semibold text-blue-900 mb-2">How to use:</h2>
             <ol class="list-decimal list-inside text-blue-800 space-y-1">
                 <li>In draw.io, select your shape (list or rectangle)</li>
@@ -81,6 +96,7 @@
         const extractBtn = document.getElementById('extractBtn');
         const clearBtn = document.getElementById('clearBtn');
         const copyBtn = document.getElementById('copyBtn');
+        const naturalSortCheckbox = document.getElementById('naturalSort');
 
         let extractedText = '';
 
@@ -132,11 +148,18 @@
                     const value = cell.getAttribute('value');
                     const style = cell.getAttribute('style') || '';
                     
+                    // Get geometry for position
+                    const geometry = cell.querySelector('mxGeometry');
+                    const x = geometry ? parseFloat(geometry.getAttribute('x')) || 0 : 0;
+                    const y = geometry ? parseFloat(geometry.getAttribute('y')) || 0 : 0;
+                    
                     cellMap.set(id, {
                         id,
                         parent,
                         value: value ? stripHtml(value) : value,
                         style,
+                        x,
+                        y,
                         children: []
                     });
                 });
@@ -156,6 +179,51 @@
                         rootCells.push(cellData);
                     }
                 });
+                
+                // Natural sort function - treats underscores as word separators
+                const naturalSort = (a, b) => {
+                    const aValue = (a.value || '').toLowerCase();
+                    const bValue = (b.value || '').toLowerCase();
+                    
+                    // Split by underscores to get word segments
+                    const aParts = aValue.split('_');
+                    const bParts = bValue.split('_');
+                    
+                    // Compare segment by segment
+                    const minLength = Math.min(aParts.length, bParts.length);
+                    for (let i = 0; i < minLength; i++) {
+                        const aPart = aParts[i];
+                        const bPart = bParts[i];
+                        
+                        // If segments are equal, continue to next
+                        if (aPart === bPart) continue;
+                        
+                        // If one segment is a prefix of the other, longer comes first
+                        if (aPart.startsWith(bPart)) {
+                            return -1; // aPart is longer, put it first
+                        }
+                        if (bPart.startsWith(aPart)) {
+                            return 1; // bPart is longer, put it first
+                        }
+                        
+                        // Otherwise, standard alphabetical comparison
+                        return aPart.localeCompare(bPart);
+                    }
+                    
+                    // If all segments match, shorter comes first
+                    return aParts.length - bParts.length;
+                };
+                
+                // Standard alphabetical sort
+                const standardSort = (a, b) => {
+                    const aValue = (a.value || '').toLowerCase();
+                    const bValue = (b.value || '').toLowerCase();
+                    return aValue.localeCompare(bValue);
+                };
+                
+                // Sort root cells based on checkbox preference
+                const useNaturalSort = naturalSortCheckbox.checked;
+                rootCells.sort(useNaturalSort ? naturalSort : standardSort);
                 
                 // Extract text from cells
                 const shapeGroups = [];
