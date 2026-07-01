@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw.io Text Extractor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Draw.io Text Extractor</h1>
+            <p class="text-gray-600">Paste your encoded XML from draw.io shapes to extract formatted text</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Input Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <label for="input" class="block text-lg font-semibold text-gray-700 mb-2">
+                    Input (Encoded XML)
+                </label>
+                <textarea 
+                    id="input" 
+                    class="w-full h-96 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                    placeholder="Paste your encoded XML from draw.io here..."
+                ></textarea>
+                <div class="mt-4 flex gap-2">
+                    <button 
+                        id="extractBtn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+                    >
+                        Extract Text
+                    </button>
+                    <button 
+                        id="clearBtn"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-2 px-6 rounded-lg transition duration-200"
+                    >
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <label for="output" class="block text-lg font-semibold text-gray-700 mb-2">
+                    Output (Extracted Text)
+                </label>
+                <textarea 
+                    id="output" 
+                    class="w-full h-96 p-4 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm resize-none"
+                    placeholder="Extracted text will appear here..."
+                ></textarea>
+                <div class="mt-4">
+                    <button 
+                        id="copyBtn"
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        disabled
+                    >
+                        Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h2 class="text-lg font-semibold text-blue-900 mb-2">How to use:</h2>
+            <ol class="list-decimal list-inside text-blue-800 space-y-1">
+                <li>In draw.io, select your shape (list or rectangle)</li>
+                <li>Copy the shape (Ctrl+C or Cmd+C)</li>
+                <li>Paste the encoded XML into the input box above</li>
+                <li>Click "Extract Text" to see the formatted output</li>
+                <li>List items will be indented under their parent title</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const inputEl = document.getElementById('input');
+        const outputEl = document.getElementById('output');
+        const extractBtn = document.getElementById('extractBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+
+        let extractedText = '';
+
+        // Helper function to strip HTML tags from text
+        function stripHtml(html) {
+            // Replace block-level elements with spaces before parsing
+            // This handles nested divs, paragraphs, etc.
+            html = html.replace(/<\/(div|p|br|h[1-6])>/gi, ' ');
+            html = html.replace(/<(div|p|br|h[1-6])[^>]*>/gi, ' ');
+            html = html.replace(/<br\s*\/?>/gi, ' ');
+            
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            let text = temp.textContent || temp.innerText || '';
+            
+            // Replace any remaining line breaks with spaces
+            text = text.replace(/\n/g, ' ').replace(/\r/g, ' ');
+            // Clean up multiple spaces
+            text = text.replace(/\s+/g, ' ').trim();
+            return text;
+        }
+
+        // Extract text from draw.io encoded XML
+        function extractText(encodedXml) {
+            try {
+                // Decode URL-encoded XML
+                const decodedXml = decodeURIComponent(encodedXml.trim());
+                
+                // Parse XML
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(decodedXml, 'text/xml');
+                
+                // Check for parsing errors
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    throw new Error('Invalid XML format');
+                }
+                
+                // Get all mxCell elements
+                const cells = xmlDoc.querySelectorAll('mxCell');
+                
+                // Build a map of parent-child relationships
+                const cellMap = new Map();
+                const rootCells = [];
+                
+                cells.forEach(cell => {
+                    const id = cell.getAttribute('id');
+                    const parent = cell.getAttribute('parent');
+                    const value = cell.getAttribute('value');
+                    const style = cell.getAttribute('style') || '';
+                    
+                    cellMap.set(id, {
+                        id,
+                        parent,
+                        value: value ? stripHtml(value) : value,
+                        style,
+                        children: []
+                    });
+                });
+                
+                // Build hierarchy
+                cells.forEach(cell => {
+                    const id = cell.getAttribute('id');
+                    const parent = cell.getAttribute('parent');
+                    const cellData = cellMap.get(id);
+                    
+                    if (parent && cellMap.has(parent)) {
+                        cellMap.get(parent).children.push(cellData);
+                    }
+                    
+                    // Root cells are those with parent="1" or parent="0"
+                    if (parent === '1' && cellData.value) {
+                        rootCells.push(cellData);
+                    }
+                });
+                
+                // Extract text from cells
+                const shapeGroups = [];
+                
+                rootCells.forEach(cell => {
+                    const lines = [];
+                    
+                    // Check if it's a swimlane (list shape)
+                    if (cell.style.includes('swimlane')) {
+                        // Add the title
+                        if (cell.value) {
+                            lines.push(cell.value);
+                        }
+                        
+                        // Add children (list items) with indentation
+                        cell.children.forEach(child => {
+                            if (child.value) {
+                                lines.push('  ' + child.value);
+                            }
+                        });
+                    } else if (cell.value) {
+                        // Regular shape (rectangle, etc.)
+                        lines.push(cell.value);
+                    }
+                    
+                    if (lines.length > 0) {
+                        shapeGroups.push(lines.join('\n'));
+                    }
+                });
+                
+                if (shapeGroups.length === 0) {
+                    return 'No text found in the provided XML.';
+                }
+                
+                // Join shapes with blank lines between them
+                return shapeGroups.join('\n\n');
+                
+            } catch (error) {
+                return `Error: ${error.message}`;
+            }
+        }
+
+        // Extract button handler
+        extractBtn.addEventListener('click', () => {
+            const input = inputEl.value;
+            
+            if (!input.trim()) {
+                outputEl.value = 'Error: Please paste some XML text first.';
+                copyBtn.disabled = true;
+                return;
+            }
+            
+            extractedText = extractText(input);
+            outputEl.value = extractedText;
+            copyBtn.disabled = false;
+        });
+
+        // Clear button handler
+        clearBtn.addEventListener('click', () => {
+            inputEl.value = '';
+            outputEl.value = '';
+            extractedText = '';
+            copyBtn.disabled = true;
+        });
+
+        // Copy button handler
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(extractedText);
+                
+                // Show feedback
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                copyBtn.classList.add('bg-green-800');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('bg-green-800');
+                    copyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                }, 2000);
+            } catch (error) {
+                alert('Failed to copy to clipboard: ' + error.message);
+            }
+        });
+
+        // Allow Enter key in textarea
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                extractBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
