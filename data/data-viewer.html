@@ -464,7 +464,7 @@
                                 if (value === undefined || value === null) {
                                     displayValue = '<span class="text-red-400" title="N/A">&mdash;</span>';
                                 } else if (typeof value === "object") {
-                                    const jsonStr = JSON.stringify(value);
+                                    const jsonStr = JSON.stringify(value, null, 2);
                                     if (jsonStr.length > 100) {
                                         const textId = `text-${textIdCounter++}`;
                                         fullTextStore.set(textId, jsonStr);
@@ -473,7 +473,7 @@
                                         )}...</code>`;
                                         cellClass += " truncated-cell";
                                     } else {
-                                        displayValue = `<code class="text-xs bg-slate-100 px-2 py-1 rounded">${escapeHtml(
+                                        displayValue = `<code class="text-xs bg-slate-100 px-2 py-1 rounded whitespace-pre">${escapeHtml(
                                             jsonStr
                                         )}</code>`;
                                     }
@@ -654,8 +654,25 @@
 
             // Show modal with full text
             function showFullText(text) {
+                let content = text;
+                let isJsonContent = false;
+                
+                // Try to parse as JSON if it's a string
+                if (typeof text === 'string') {
+                    try {
+                        const parsed = JSON.parse(text);
+                        // If successfully parsed and it's an object or array, format it
+                        if (typeof parsed === 'object' && parsed !== null) {
+                            content = JSON.stringify(parsed, null, 2);
+                            isJsonContent = true;
+                        }
+                    } catch (e) {
+                        // Not JSON, keep as is
+                    }
+                }
+                
                 // Convert URLs to clickable links in the modal
-                modalText.innerHTML = linkifyUrls(text);
+                modalText.innerHTML = linkifyUrls(content);
                 textModal.classList.remove("hidden");
             }
 
