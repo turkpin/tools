@@ -479,14 +479,20 @@
                                     }
                                 } else {
                                     const strValue = String(value);
+                                    
                                     if (strValue.length > 100) {
+                                        // Long text: show truncated with popup (URL or not)
                                         const textId = `text-${textIdCounter++}`;
                                         fullTextStore.set(textId, strValue);
                                         displayValue = `<span class="cursor-pointer text-blue-600 hover:text-blue-800" data-text-id="${textId}">${escapeHtml(
                                             strValue.substring(0, 100)
                                         )}...</span>`;
                                         cellClass += " truncated-cell";
+                                    } else if (isUrl(strValue)) {
+                                        // Short URL: show as clickable link
+                                        displayValue = `<a href="${escapeHtml(strValue)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">${escapeHtml(strValue)}</a>`;
                                     } else {
+                                        // Short non-URL text: just display
                                         displayValue = escapeHtml(strValue);
                                     }
                                 }
@@ -592,6 +598,46 @@
                 return div.innerHTML;
             }
 
+            // Check if a string is a URL
+            function isUrl(str) {
+                if (typeof str !== 'string') return false;
+                try {
+                    const url = new URL(str);
+                    return url.protocol === 'http:' || url.protocol === 'https:';
+                } catch {
+                    return false;
+                }
+            }
+
+            // Convert URLs in text to clickable links
+            function linkifyUrls(text) {
+                if (typeof text !== 'string') return escapeHtml(String(text));
+                
+                // URL regex pattern
+                const urlPattern = /(https?:\/\/[^\s<>"]+)/g;
+                
+                // Find all URLs first, then escape and replace
+                let lastIndex = 0;
+                let result = '';
+                let match;
+                
+                while ((match = urlPattern.exec(text)) !== null) {
+                    // Escape the text before the URL
+                    result += escapeHtml(text.substring(lastIndex, match.index));
+                    
+                    // Add the clickable link (escape the display text but not the href)
+                    const url = match[0];
+                    result += `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">${escapeHtml(url)}</a>`;
+                    
+                    lastIndex = match.index + url.length;
+                }
+                
+                // Escape any remaining text after the last URL
+                result += escapeHtml(text.substring(lastIndex));
+                
+                return result;
+            }
+
             // Allow file drop
             fileInput.addEventListener("change", () => {
                 jsonInput.value = "";
@@ -608,7 +654,8 @@
 
             // Show modal with full text
             function showFullText(text) {
-                modalText.textContent = text;
+                // Convert URLs to clickable links in the modal
+                modalText.innerHTML = linkifyUrls(text);
                 textModal.classList.remove("hidden");
             }
 
