@@ -5,6 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Data Viewer</title>
         <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <style>
+            /* Override highlight.js background to match our design */
+            .hljs {
+                background: transparent !important;
+                padding: 0 !important;
+            }
+        </style>
     </head>
     <body class="bg-slate-100 p-8 pb-[calc(10vh+4rem)]">
         <div id="appContainer" class="max-w-[1920px] mx-auto">
@@ -95,7 +104,7 @@
                             &times;
                         </button>
                     </div>
-                    <div class="p-6 overflow-y-auto flex-1">
+                    <div class="p-6 overflow-y-auto flex-1 bg-slate-50">
                         <pre
                             id="modalText"
                             class="whitespace-pre-wrap break-words font-mono text-sm text-slate-700"
@@ -468,14 +477,15 @@
                                     if (jsonStr.length > 100) {
                                         const textId = `text-${textIdCounter++}`;
                                         fullTextStore.set(textId, jsonStr);
-                                        displayValue = `<code class="text-xs bg-slate-100 px-2 py-1 rounded cursor-pointer hover:bg-slate-200" data-text-id="${textId}">${escapeHtml(
-                                            jsonStr.substring(0, 100)
-                                        )}...</code>`;
+                                        const preview = JSON.stringify(value);
+                                        displayValue = `<code class="text-xs bg-slate-50 text-slate-800 px-2 py-1 rounded cursor-pointer hover:bg-slate-100 inline-block max-w-full overflow-hidden border border-slate-200" data-text-id="${textId}"><span class="hljs language-json">${highlightJson(
+                                            preview.substring(0, 100)
+                                        )}</span>...</code>`;
                                         cellClass += " truncated-cell";
                                     } else {
-                                        displayValue = `<code class="text-xs bg-slate-100 px-2 py-1 rounded whitespace-pre">${escapeHtml(
+                                        displayValue = `<code class="text-xs bg-slate-50 text-slate-800 px-2 py-1 rounded whitespace-pre block border border-slate-200"><span class="hljs language-json">${highlightJson(
                                             jsonStr
-                                        )}</code>`;
+                                        )}</span></code>`;
                                     }
                                 } else {
                                     const strValue = String(value);
@@ -638,6 +648,20 @@
                 return result;
             }
 
+            // Highlight JSON syntax with highlight.js
+            function highlightJson(json) {
+                if (typeof json !== 'string') return escapeHtml(String(json));
+                
+                // Use highlight.js to highlight JSON
+                const highlighted = hljs.highlight(json, { language: 'json' }).value;
+                
+                // Now linkify URLs within the highlighted HTML
+                // We need to be careful not to break the highlight.js markup
+                return highlighted.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
+                    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80">${url}</a>`;
+                });
+            }
+
             // Allow file drop
             fileInput.addEventListener("change", () => {
                 jsonInput.value = "";
@@ -671,8 +695,22 @@
                     }
                 }
                 
-                // Convert URLs to clickable links in the modal
-                modalText.innerHTML = linkifyUrls(content);
+                const modalTextContainer = modalText.parentElement;
+                
+                // Apply appropriate formatting and styling
+                if (isJsonContent) {
+                    modalText.innerHTML = `<code class="hljs language-json">${highlightJson(content)}</code>`;
+                    modalTextContainer.classList.add('bg-white');
+                    modalTextContainer.classList.remove('bg-slate-50');
+                    modalText.classList.add('text-slate-800');
+                    modalText.classList.remove('text-slate-700');
+                } else {
+                    modalText.innerHTML = linkifyUrls(content);
+                    modalTextContainer.classList.add('bg-slate-50');
+                    modalTextContainer.classList.remove('bg-white');
+                    modalText.classList.add('text-slate-700');
+                    modalText.classList.remove('text-slate-800');
+                }
                 textModal.classList.remove("hidden");
             }
 
