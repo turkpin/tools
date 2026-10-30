@@ -26,6 +26,12 @@ Tarayıcıda `http://localhost:4000` adresini aç.
 |------|----------|
 | Data Viewer | JSON verisini (yapıştırma veya dosya yükleme) sıralanabilir ve filtrelenebilir bir tabloya dönüştürür. `=`, `!=`, `contains`, `>`, `<`, boş/dolu ve özel JS ifadesi gibi operatörleri destekler. |
 
+### Image
+
+| Araç | Açıklama |
+|------|----------|
+| Görsel Editör | Bir arka plan görseline bayrak ve metin ekler. Öğeler tek tek veya toplu (`Metin ; ülke`) eklenir; bayrak boyutu/oranı/köşesi ve yazı tipi, boyut, renk, dış çizgi, gölge, arka kutu gibi ayarlar tüm öğelere veya seçili öğeye uygulanır. Her öğe ayrı görsel olarak ZIP'le ya da hepsi tek görselde PNG/JPG/WEBP indirilir; proje JSON olarak kaydedilip açılabilir. |
+
 ### JSON
 
 | Araç | Açıklama |

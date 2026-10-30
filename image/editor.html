@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Görsel Editör</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link id="gfonts" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --bg: #f3f3f5;
+            --panel: #ffffff;
+            --line: #e2e2e7;
+            --text: #1d1d22;
+            --muted: #6b6b76;
+            --acc: #2f6bff;
+            --acc-weak: #e8efff;
+            --danger: #d93a3a;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #141417;
+                --panel: #1d1d22;
+                --line: #2e2e36;
+                --text: #ececf1;
+                --muted: #9a9aa6;
+                --acc: #5b8cff;
+                --acc-weak: #23304f;
+                --danger: #ff6b6b;
+            }
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--line);
+        }
+
+        header h1 { font-size: 15px; margin: 0 8px 0 0; }
+        .grp { display: flex; align-items: center; gap: 6px; }
+        .grp + .grp { padding-left: 14px; border-left: 1px solid var(--line); }
+        .sep { flex: 1; }
+
+        main {
+            display: grid;
+            grid-template-columns: 300px minmax(0, 1fr) 320px;
+            min-height: 0;
+        }
+
+        aside {
+            background: var(--panel);
+            overflow: auto;
+            padding: 10px 12px 20px;
+        }
+
+        aside.left { border-right: 1px solid var(--line); }
+        aside.right { border-left: 1px solid var(--line); }
+
+        .stage {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            min-height: 0;
+            overflow: hidden;
+            background-color: var(--bg);
+            background-image:
+                linear-gradient(45deg, rgba(128, 128, 128, .12) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(128, 128, 128, .12) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(128, 128, 128, .12) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(128, 128, 128, .12) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+        }
+
+        #cv {
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .18);
+            cursor: move;
+            touch-action: none;
+        }
+
+        .hint {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 4px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        details { border-bottom: 1px solid var(--line); padding: 6px 0 10px; }
+        summary { font-weight: 600; font-size: 13px; cursor: pointer; padding: 4px 0 8px; }
+
+        .f {
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+        }
+
+        .f > span { color: var(--muted); font-size: 12px; }
+        .f.chk { grid-template-columns: auto 1fr; gap: 6px; }
+        .f.chk > span { color: var(--text); }
+        .rn { display: flex; gap: 6px; align-items: center; }
+        .rn input[type=range] { flex: 1; min-width: 0; }
+        .rn input[type=number] { width: 64px; }
+
+        input, select, textarea, button {
+            font: inherit;
+            color: inherit;
+        }
+
+        input[type=number], input[type=text], select, textarea {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 4px 6px;
+            min-width: 0;
+        }
+
+        input[type=color] {
+            width: 40px;
+            height: 26px;
+            padding: 0 2px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: var(--bg);
+        }
+
+        textarea { width: 100%; resize: vertical; }
+
+        button {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        button:hover { border-color: var(--acc); }
+        button.primary { background: var(--acc); border-color: var(--acc); color: #fff; }
+        button:disabled { opacity: .5; cursor: default; }
+        .btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+        h3 { font-size: 13px; margin: 6px 0 8px; }
+        .muted { color: var(--muted); font-size: 12px; }
+        .bad { border-color: var(--danger) !important; }
+
+        #list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+
+        .row {
+            display: grid;
+            grid-template-columns: 22px 36px 1fr auto auto;
+            gap: 6px;
+            align-items: center;
+            padding: 5px 6px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .row.sel { border-color: var(--acc); background: var(--acc-weak); }
+        .row .n { color: var(--muted); font-size: 11px; text-align: right; }
+        .row img, .row .noflag { width: 36px; height: 27px; object-fit: cover; border-radius: 3px; background: var(--line); }
+        .row .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .row button { padding: 1px 6px; border: none; background: none; color: var(--muted); }
+        .row button:hover { color: var(--text); }
+
+        dialog {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--panel);
+            color: var(--text);
+            width: min(560px, calc(100vw - 32px));
+        }
+
+        dialog::backdrop { background: rgba(0, 0, 0, .4); }
+
+        #busy {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, .35);
+            color: #fff;
+            font-size: 15px;
+            z-index: 10;
+        }
+
+        @media (max-width: 1000px) {
+            body { height: auto; }
+            main { grid-template-columns: 1fr; }
+            .stage { height: 60vh; order: -1; }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Görsel Editör</h1>
+        <div class="grp">
+            <button id="bgPick">Arka plan görseli…</button>
+            <button id="bgClear" title="Görseli kaldır">×</button>
+            <input id="bgFile" type="file" accept="image/*" hidden>
+            <input id="bgColor" type="color" title="Arka plan rengi">
+            <input id="bgW" type="number" min="16" max="10000" title="Genişlik (px)" style="width:72px">
+            <span class="muted">×</span>
+            <input id="bgH" type="number" min="16" max="10000" title="Yükseklik (px)" style="width:72px">
+        </div>
+        <div class="grp">
+            <select id="mode">
+                <option value="each">Her öğe ayrı görsel</option>
+                <option value="single">Hepsi tek görselde</option>
+            </select>
+            <button id="arrange" title="Öğeleri görsele sığacak şekilde satır/sütunlara diz">Otomatik diz</button>
+            <label class="grp"><input id="applyAll" type="checkbox"> Ayarları tümüne uygula</label>
+        </div>
+        <div class="sep"></div>
+        <div class="grp">
+            <select id="fmt">
+                <option value="png">PNG</option>
+                <option value="jpg">JPG</option>
+                <option value="webp">WEBP</option>
+            </select>
+            <label class="grp" id="qWrap" title="Kalite"><span class="muted">Kalite</span><input id="q" type="number" min="10" max="100" style="width:56px"></label>
+            <button id="expOne">Seçiliyi indir</button>
+            <button id="expAll" class="primary">Tümünü indir (ZIP)</button>
+        </div>
+        <div class="grp">
+            <button id="projSave">Projeyi kaydet</button>
+            <button id="projOpen">Projeyi aç</button>
+            <input id="projFile" type="file" accept=".json,application/json" hidden>
+            <button id="reset" title="Her şeyi sıfırla">Sıfırla</button>
+        </div>
+    </header>
+
+    <main>
+        <aside class="left">
+            <details open>
+                <summary>Bayrak</summary>
+                <div id="fsCtl"></div>
+                <div class="btns">
+                    <button data-center="fs:x">Yatay ortala</button>
+                    <button data-center="fs:y">Dikey ortala</button>
+                </div>
+            </details>
+            <details open>
+                <summary>Metin</summary>
+                <div id="tsCtl"></div>
+                <div class="btns">
+                    <button data-center="ts:x">Yatay ortala</button>
+                    <button data-center="ts:y">Dikey ortala</button>
+                </div>
+            </details>
+            <p class="muted" id="scopeNote"></p>
+        </aside>
+
+        <div class="stage">
+            <canvas id="cv"></canvas>
+            <div class="hint">Sürükle: taşı · Ok tuşları: 1px · Shift + ok: 10px</div>
+        </div>
+
+        <aside class="right">
+            <h3>Seçili öğe</h3>
+            <label class="f"><span>Metin</span><textarea id="itText" rows="2"></textarea></label>
+            <label class="f"><span>Bayrak</span><input id="itFlag" type="text" list="countries" placeholder="Ülke adı veya kodu"></label>
+            <div class="f"><span></span>
+                <div class="btns" style="margin:0">
+                    <button id="customPick">Kendi bayrağım…</button>
+                    <button id="customClear" hidden>Özel bayrağı kaldır</button>
+                    <input id="customFile" type="file" accept="image/*" hidden>
+                </div>
+            </div>
+            <datalist id="countries"></datalist>
+
+            <h3 style="margin-top:16px">Öğeler <span class="muted" id="count"></span></h3>
+            <div class="btns">
+                <button id="add">+ Ekle</button>
+                <button id="bulkOpen">Toplu ekle…</button>
+            </div>
+            <div id="list"></div>
+        </aside>
+    </main>
+
+    <dialog id="bulk">
+        <h3>Toplu ekle</h3>
+        <p class="muted">Her satır bir öğe: <code>Metin ; ülke</code>. Ülke adı (Türkiye) veya kodu (tr) olabilir; sekme ile ayrılmış (Excel'den kopyala) satırlar da olur. Sadece ülke yazılırsa metin ülke adı olur. Satır içinde alt satır için <code>\n</code> yaz.</p>
+        <textarea id="bulkText" rows="12" placeholder="Türkiye ; tr&#10;Almanya ; de&#10;Fransa&#10;Japonya ; Japonya"></textarea>
+        <label class="grp" style="margin-top:8px"><input id="bulkReplace" type="checkbox"> Mevcut listeyi değiştir</label>
+        <div class="btns" style="justify-content:flex-end">
+            <button id="bulkCancel">Vazgeç</button>
+            <button id="bulkOk" class="primary">Ekle</button>
+        </div>
+    </dialog>
+
+    <div id="busy">Hazırlanıyor…</div>
+
+    <script>
+        const $ = s => document.querySelector(s);
+        const STORE = 'turkpin-image-editor';
+        const CDN = 'https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/';
+
+        const FONTS = [
+            ['Montserrat', 'Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700'],
+            ['Poppins', 'Poppins:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700'],
+            ['Inter', 'Inter:wght@400;600;700;800;900'],
+            ['Roboto', 'Roboto:ital,wght@0,400;0,700;0,900;1,400;1,700'],
+            ['Open Sans', 'Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700'],
+            ['Lato', 'Lato:ital,wght@0,400;0,700;0,900;1,400;1,700'],
+            ['Nunito', 'Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700'],
+            ['Rubik', 'Rubik:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700'],
+            ['Raleway', 'Raleway:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700'],
+            ['Oswald', 'Oswald:wght@400;600;700'],
+            ['Bebas Neue', 'Bebas+Neue'],
+            ['Anton', 'Anton'],
+            ['Playfair Display', 'Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700'],
+            ['Merriweather', 'Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700'],
+        ];
+        const SYS_FONTS = ['Arial', 'Helvetica', 'Georgia', 'Times New Roman', 'Verdana', 'Impact', 'Courier New'];
+        $('#gfonts').href = 'https://fonts.googleapis.com/css2?' + FONTS.map(f => 'family=' + f[1]).join('&') + '&display=swap';
+
+        // Countries: ISO codes + extras that flag-icons ships
+        const ISO = ('ad ae af ag ai al am ao aq ar as at au aw ax az ba bb bd be bf bg bh bi bj bl bm bn bo bq br bs bt bv bw by bz ' +
+            'ca cc cd cf cg ch ci ck cl cm cn co cr cu cv cw cx cy cz de dj dk dm do dz ec ee eg eh er es et fi fj fk fm fo fr ' +
+            'ga gb gd ge gf gg gh gi gl gm gn gp gq gr gs gt gu gw gy hk hm hn hr ht hu id ie il im in io iq ir is it je jm jo jp ' +
+            'ke kg kh ki km kn kp kr kw ky kz la lb lc li lk lr ls lt lu lv ly ma mc md me mf mg mh mk ml mm mn mo mp mq mr ms mt ' +
+            'mu mv mw mx my mz na nc ne nf ng ni nl no np nr nu nz om pa pe pf pg ph pk pl pm pn pr ps pt pw py qa re ro rs ru rw ' +
+            'sa sb sc sd se sg sh si sj sk sl sm sn so sr ss st sv sx sy sz tc td tf tg th tj tk tl tm tn to tr tt tv tw tz ua ug ' +
+            'um us uy uz va vc ve vg vi vn vu wf ws xk ye yt za zm zw').split(' ');
+        const EXTRA = { 'gb-eng': 'İngiltere', 'gb-sct': 'İskoçya', 'gb-wls': 'Galler', 'gb-nir': 'Kuzey İrlanda', 'eu': 'Avrupa Birliği', 'un': 'Birleşmiş Milletler' };
+        const lc = s => String(s).toLocaleLowerCase('tr').trim();
+        const regionName = (lang) => { try { const d = new Intl.DisplayNames([lang], { type: 'region' }); return c => d.of(c.toUpperCase()); } catch { return c => c.toUpperCase(); } };
+        const trName = regionName('tr'), enName = regionName('en');
+        const COUNTRIES = ISO.map(c => ({ c, n: trName(c), en: enName(c) }))
+            .concat(Object.entries(EXTRA).map(([c, n]) => ({ c, n, en: n })))
+            .sort((a, b) => a.n.localeCompare(b.n, 'tr'));
+        const countryLabel = c => { const x = COUNTRIES.find(x => x.c === c); return x ? `${x.n} (${c})` : c; };
+        function findCountry(s) {
+            s = lc(s);
+            if (!s) return null;
+            const m = s.match(/\(([a-z-]+)\)$/);
+            if (m) s = m[1];
+            return COUNTRIES.find(x => x.c === s) || COUNTRIES.find(x => lc(x.n) === s || lc(x.en) === s) || null;
+        }
+        $('#countries').append(...COUNTRIES.map(x => { const o = document.createElement('option'); o.value = `${x.n} (${x.c})`; return o; }));
+
+        const RATIO = { '4:3': 4 / 3, '3:2': 3 / 2, '2:1': 2, '1:1': 1, 'circle': 1 };
+        const DEF = {
+            fs: { show: true, x: 80, y: 80, w: 240, ratio: '4:3', radius: 12, borderW: 0, borderC: '#ffffff', shadow: 0, opacity: 100 },
+            ts: {
+                show: true, x: 360, y: 110, font: 'Montserrat', size: 72, weight: 800, italic: false, upper: false, color: '#111111',
+                align: 'left', lineH: 1.15, spacing: 0, maxW: 0, strokeW: 0, strokeC: '#ffffff', shadow: 0, shadowC: '#000000',
+                boxOn: false, boxC: '#000000', boxA: 60, boxPad: 16, boxR: 12,
+            },
+        };
+
+        const FS_UI = [
+            ['show', 'Bayrağı göster', 'check'],
+            ['x', 'X', 'num'], ['y', 'Y', 'num'],
+            ['w', 'Genişlik', 'range', 10, 2000],
+            ['ratio', 'Oran', 'select', [['4:3', '4:3'], ['3:2', '3:2'], ['2:1', '2:1'], ['1:1', 'Kare'], ['circle', 'Yuvarlak']]],
+            ['radius', 'Köşe', 'range', 0, 500],
+            ['borderW', 'Kenarlık', 'range', 0, 60], ['borderC', 'Kenarlık rengi', 'color'],
+            ['shadow', 'Gölge', 'range', 0, 100],
+            ['opacity', 'Opaklık %', 'range', 0, 100],
+        ];
+        const TS_UI = [
+            ['show', 'Metni göster', 'check'],
+            ['x', 'X', 'num'], ['y', 'Y', 'num'],
+            ['font', 'Yazı tipi', 'select', FONTS.map(f => [f[0], f[0]]).concat(SYS_FONTS.map(f => [f, f]))],
+            ['size', 'Boyut', 'range', 8, 600],
+            ['weight', 'Kalınlık', 'select', [[300, 'İnce'], [400, 'Normal'], [600, 'Yarı kalın'], [700, 'Kalın'], [800, 'Ekstra kalın'], [900, 'Siyah']]],
+            ['italic', 'İtalik', 'check'], ['upper', 'BÜYÜK HARF', 'check'],
+            ['color', 'Renk', 'color'],
+            ['align', 'Hizalama', 'select', [['left', 'Sol'], ['center', 'Orta'], ['right', 'Sağ']]],
+            ['lineH', 'Satır aralığı', 'range', 0.7, 3, 0.05],
+            ['spacing', 'Harf aralığı', 'range', -20, 100],
+            ['maxW', 'Maks. genişlik', 'range', 0, 4000],
+            ['strokeW', 'Dış çizgi', 'range', 0, 40], ['strokeC', 'Dış çizgi rengi', 'color'],
+            ['shadow', 'Gölge', 'range', 0, 100], ['shadowC', 'Gölge rengi', 'color'],
+            ['boxOn', 'Arka kutu', 'check'], ['boxC', 'Kutu rengi', 'color'], ['boxA', 'Kutu opaklık %', 'range', 0, 100],
+            ['boxPad', 'Kutu boşluğu', 'range', 0, 200], ['boxR', 'Kutu köşesi', 'range', 0, 200],
+        ];
+
+        // ---- state ----
+        let uid = 0;
+        function mkItem(text, code, base) {
+            return {
+                id: Date.now().toString(36) + '-' + (uid++),
+                text: text || '',
+                flag: { code: code || '', custom: null },
+                fs: { ...(base ? base.fs : DEF.fs) },
+                ts: { ...(base ? base.ts : DEF.ts) },
+            };
+        }
+        function defaultState() {
+            return {
+                mode: 'each', applyAll: true, sel: 0, layer: 'text',
+                bg: { src: null, w: 1080, h: 1080, color: '#f4f1ea' },
+                exp: { fmt: 'png', q: 92 },
+                items: [mkItem('Türkiye', 'tr'), mkItem('Almanya', 'de'), mkItem('Japonya', 'jp')],
+            };
+        }
+        function normalize(s) {
+            const d = defaultState();
+            s = { ...d, ...s, bg: { ...d.bg, ...s.bg }, exp: { ...d.exp, ...s.exp } };
+            s.items = (Array.isArray(s.items) ? s.items : []).map(it => ({
+                id: it.id || mkItem().id,
+                text: it.text || '',
+                flag: { code: '', custom: null, ...it.flag },
+                fs: { ...DEF.fs, ...it.fs },
+                ts: { ...DEF.ts, ...it.ts },
+            }));
+            s.sel = Math.max(0, Math.min(s.sel | 0, s.items.length - 1));
+            return s;
+        }
+        function load() {
+            try { const raw = localStorage.getItem(STORE); return raw ? normalize(JSON.parse(raw)) : null; } catch { return null; }
+        }
+        let S = load() || defaultState();
+        const cur = () => S.items[S.sel];
+
+        let saveT = 0;
+        function save() {
+            clearTimeout(saveT);
+            saveT = setTimeout(() => {
+                try { localStorage.setItem(STORE, JSON.stringify(S)); }
+                catch {
+                    // Large background images don't fit; keep the rest
+                    try { localStorage.setItem(STORE, JSON.stringify({ ...S, bg: { ...S.bg, src: null } })); } catch { }
+                }
+            }, 400);
+        }
+
+        // ---- images & fonts ----
+        const imgCache = new Map();
+        function getImg(src) {
+            let e = imgCache.get(src);
+            if (!e) {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                e = { img, ok: false, err: false };
+                e.p = new Promise(r => {
+                    img.onload = () => { e.ok = true; r(); scheduleRender(); renderList(); };
+                    img.onerror = () => { e.err = true; r(); };
+                });
+                img.src = src;
+                imgCache.set(src, e);
+            }
+            return e;
+        }
+        function flagSrc(it, forceRect) {
+            if (it.flag.custom) return it.flag.custom;
+            if (!it.flag.code) return null;
+            const sq = !forceRect && (it.fs.ratio === '1:1' || it.fs.ratio === 'circle');
+            return CDN + (sq ? '1x1/' : '4x3/') + it.flag.code + '.svg';
+        }
+        const fontStr = t => `${t.italic ? 'italic ' : ''}${t.weight} ${t.size}px "${t.font}"`;
+        const fontReq = new Set();
+        function ensureFont(t, text) {
+            const k = fontStr({ ...t, size: 10 });
+            if (fontReq.has(k)) return;
+            fontReq.add(k);
+            document.fonts.load(k, text || 'AaĞğŞşİı').then(scheduleRender).catch(() => { });
+        }
+
+        // ---- drawing ----
+        function roundPath(c, x, y, w, h, r) {
+            c.beginPath();
+            r = Math.max(0, Math.min(r, w / 2, h / 2));
+            if (c.roundRect) c.roundRect(x, y, w, h, r); else c.rect(x, y, w, h);
+        }
+        function hexA(hex, a) {
+            const n = parseInt(hex.slice(1), 16);
+            return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+        }
+        const flagRect = it => ({ x: it.fs.x, y: it.fs.y, w: it.fs.w, h: it.fs.w / RATIO[it.fs.ratio] });
+
+        function drawFlag(c, it) {
+            const f = it.fs;
+            if (!f.show) return;
+            const src = flagSrc(it);
+            if (!src) return;
+            const e = getImg(src);
+            if (!e.ok) return;
+            const r = flagRect(it);
+            const rad = f.ratio === 'circle' ? r.w / 2 : f.radius;
+            c.save();
+            c.globalAlpha = f.opacity / 100;
+            if (f.shadow > 0) {
+                c.save();
+                c.shadowColor = 'rgba(0,0,0,.45)';
+                c.shadowBlur = f.shadow;
+                c.shadowOffsetY = f.shadow / 3;
+                roundPath(c, r.x, r.y, r.w, r.h, rad);
+                c.fillStyle = '#000';
+                c.fill();
+                c.restore();
+            }
+            c.save();
+            roundPath(c, r.x, r.y, r.w, r.h, rad);
+            c.clip();
+            // CDN SVGs have no reliable intrinsic size; use their known aspect ratio
+            const [iw, ih] = src.startsWith(CDN) ? (src.includes('/1x1/') ? [1, 1] : [4, 3]) : [e.img.naturalWidth, e.img.naturalHeight];
+            const s = Math.max(r.w / iw, r.h / ih);
+            c.drawImage(e.img, r.x + (r.w - iw * s) / 2, r.y + (r.h - ih * s) / 2, iw * s, ih * s);
+            c.restore();
+            if (f.borderW > 0) {
+                const b = f.borderW / 2;
+                roundPath(c, r.x + b, r.y + b, r.w - f.borderW, r.h - f.borderW, Math.max(0, rad - b));
+                c.lineWidth = f.borderW;
+                c.strokeStyle = f.borderC;
+                c.stroke();
+            }
+            c.restore();
+        }
+
+        function layoutText(c, it) {
+            const t = it.ts;
+            c.font = fontStr(t);
+            if ('letterSpacing' in c) c.letterSpacing = t.spacing + 'px';
+            const txt = t.upper ? it.text.toLocaleUpperCase('tr') : it.text;
+            const lines = [];
+            for (const para of txt.split('\n')) {
+                if (!(t.maxW > 0)) { lines.push(para); continue; }
+                let line = '';
+                for (const w of para.split(/\s+/)) {
+                    const test = line ? line + ' ' + w : w;
+                    if (line && c.measureText(test).width > t.maxW) { lines.push(line); line = w; } else line = test;
+                }
+                lines.push(line);
+            }
+            const W = Math.max(0, ...lines.map(l => c.measureText(l).width));
+            const lh = t.size * t.lineH;
+            const H = lines.length * lh;
+            const bx = t.align === 'center' ? t.x - W / 2 : t.align === 'right' ? t.x - W : t.x;
+            return { lines, W, H, lh, bx, by: t.y };
+        }
+
+        function drawText(c, it) {
+            const t = it.ts;
+            if (!t.show || !it.text) return;
+            ensureFont(t, it.text);
+            c.save();
+            const L = layoutText(c, it);
+            if (t.boxOn) {
+                c.globalAlpha = t.boxA / 100;
+                c.fillStyle = t.boxC;
+                roundPath(c, L.bx - t.boxPad, L.by - t.boxPad, L.W + 2 * t.boxPad, L.H + 2 * t.boxPad, t.boxR);
+                c.fill();
+                c.globalAlpha = 1;
+            }
+            c.textAlign = t.align;
+            c.textBaseline = 'middle';
+            c.lineJoin = 'round';
+            L.lines.forEach((ln, i) => {
+                const y = L.by + i * L.lh + L.lh / 2;
+                // Shadow only on the first pass so stroke + fill don't double it
+                let shadowed = false;
+                const shadow = () => {
+                    if (t.shadow > 0 && !shadowed) {
+                        c.shadowColor = hexA(t.shadowC, .6);
+                        c.shadowBlur = t.shadow;
+                        c.shadowOffsetY = t.shadow / 3;
+                        shadowed = true;
+                    } else c.shadowColor = 'transparent';
+                };
+                if (t.strokeW > 0) {
+                    shadow();
+                    c.lineWidth = t.strokeW * 2;
+                    c.strokeStyle = t.strokeC;
+                    c.strokeText(ln, t.x, y);
+                }
+                shadow();
+                c.fillStyle = t.color;
+                c.fillText(ln, t.x, y);
+            });
+            c.restore();
+        }
+
+        function drawScene(c, items) {
+            const { w, h } = S.bg;
+            c.fillStyle = S.bg.color;
+            c.fillRect(0, 0, w, h);
+            if (S.bg.src) {
+                const e = getImg(S.bg.src);
+                if (e.ok) c.drawImage(e.img, 0, 0, w, h);
+            }
+            for (const it of items) { drawFlag(c, it); drawText(c, it); }
+        }
+
+        const cv = $('#cv'), ctx = cv.getContext('2d');
+        const visibleItems = () => S.mode === 'single' ? S.items : (cur() ? [cur()] : []);
+
+        function boundsOf(it, layer) {
+            if (layer === 'flag') return it.fs.show && flagSrc(it) ? flagRect(it) : null;
+            if (!it.ts.show || !it.text) return null;
+            ctx.save();
+            const L = layoutText(ctx, it);
+            ctx.restore();
+            const p = it.ts.boxOn ? it.ts.boxPad : 0;
+            return { x: L.bx - p, y: L.by - p, w: L.W + 2 * p, h: L.H + 2 * p };
+        }
+
+        let rq = 0;
+        function scheduleRender() { if (!rq) rq = requestAnimationFrame(() => { rq = 0; renderPreview(); }); }
+        function renderPreview() {
+            if (cv.width !== S.bg.w) cv.width = S.bg.w;
+            if (cv.height !== S.bg.h) cv.height = S.bg.h;
+            drawScene(ctx, visibleItems());
+            const it = cur();
+            if (!it) return;
+            const px = S.bg.w / (cv.clientWidth || S.bg.w);
+            ctx.save();
+            ctx.setLineDash([6 * px, 4 * px]);
+            for (const layer of ['flag', 'text']) {
+                const b = boundsOf(it, layer);
+                if (!b) continue;
+                ctx.lineWidth = (layer === S.layer ? 2 : 1) * px;
+                ctx.strokeStyle = layer === S.layer ? '#2f6bff' : 'rgba(47,107,255,.5)';
+                ctx.strokeRect(b.x, b.y, b.w, b.h);
+            }
+            ctx.restore();
+        }
+
+        // ---- controls ----
+        const ctrls = { fs: {}, ts: {} };
+        function input(type) { const i = document.createElement('input'); i.type = type; return i; }
+        function buildControls(el, g, schema) {
+            for (const [k, label, type, a, b, step] of schema) {
+                const row = document.createElement('label');
+                row.className = 'f';
+                const span = document.createElement('span');
+                span.textContent = label;
+                row.append(span);
+                let set;
+                if (type === 'check') {
+                    row.className = 'f chk';
+                    const i = input('checkbox');
+                    i.onchange = () => setProp(g, k, i.checked);
+                    row.prepend(i);
+                    set = v => i.checked = !!v;
+                } else if (type === 'color') {
+                    const i = input('color');
+                    i.oninput = () => setProp(g, k, i.value);
+                    row.append(i);
+                    set = v => i.value = v;
+                } else if (type === 'select') {
+                    const s = document.createElement('select');
+                    for (const [v, l] of a) {
+                        const o = document.createElement('option');
+                        o.value = v;
+                        o.textContent = l;
+                        if (k === 'font') o.style.fontFamily = `"${v}"`;
+                        s.append(o);
+                    }
+                    const num = typeof DEF[g][k] === 'number';
+                    s.onchange = () => setProp(g, k, num ? Number(s.value) : s.value);
+                    row.append(s);
+                    set = v => s.value = String(v);
+                } else {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'rn';
+                    const n = input('number');
+                    n.step = step || 1;
+                    let r = null;
+                    if (type === 'range') {
+                        r = input('range');
+                        r.min = a; r.max = b; r.step = step || 1;
+                        r.oninput = () => { n.value = r.value; setProp(g, k, Number(r.value)); };
+                        wrap.append(r);
+                    }
+                    n.oninput = () => {
+                        if (n.value === '' || isNaN(n.value)) return;
+                        if (r) r.value = n.value;
+                        setProp(g, k, Number(n.value));
+                    };
+                    wrap.append(n);
+                    row.append(wrap);
+                    set = v => { n.value = v; if (r) r.value = v; };
+                }
+                ctrls[g][k] = set;
+                el.append(row);
+            }
+        }
+        buildControls($('#fsCtl'), 'fs', FS_UI);
+        buildControls($('#tsCtl'), 'ts', TS_UI);
+
+        // Which items an edit touches. Positions stay per item when everything is on one image.
+        function targets(k) {
+            if (!S.applyAll) return [cur()];
+            if (S.mode === 'single' && (k === 'x' || k === 'y')) return [cur()];
+            return S.items;
+        }
+        function setProp(g, k, v) {
+            if (!cur()) return;
+            for (const it of targets(k)) it[g][k] = v;
+            S.layer = g === 'fs' ? 'flag' : 'text';
+            if (g === 'fs' && k === 'ratio') renderList();
+            scheduleRender();
+            save();
+        }
+        function syncControls(keys) {
+            const it = cur();
+            if (!it) return;
+            for (const g of ['fs', 'ts'])
+                for (const k in ctrls[g]) if (!keys || keys.includes(k)) ctrls[g][k](it[g][k]);
+        }
+
+        document.querySelectorAll('[data-center]').forEach(btn => btn.onclick = () => {
+            const [g, axis] = btn.dataset.center.split(':');
+            if (!cur()) return;
+            for (const it of targets(axis)) {
+                const b = boundsOf(it, g === 'fs' ? 'flag' : 'text');
+                if (!b) continue;
+                const mid = axis === 'x' ? S.bg.w / 2 - (b.x + b.w / 2) : S.bg.h / 2 - (b.y + b.h / 2);
+                it[g][axis] = Math.round(it[g][axis] + mid);
+            }
+            S.layer = g === 'fs' ? 'flag' : 'text';
+            syncControls(['x', 'y']);
+            scheduleRender();
+            save();
+        });
+
+        // ---- dragging & nudging ----
+        let drag = null;
+        function canvasPoint(e) {
+            const r = cv.getBoundingClientRect();
+            return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+        }
+        const inside = (p, b) => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+        function moveTargets(i) {
+            return S.mode === 'each' && S.applyAll ? S.items : [S.items[i]];
+        }
+        cv.addEventListener('pointerdown', e => {
+            const p = canvasPoint(e);
+            const idx = S.mode === 'single' ? S.items.map((_, i) => i).reverse() : [S.sel];
+            for (const i of idx) {
+                const it = S.items[i];
+                if (!it) continue;
+                for (const layer of ['text', 'flag']) {
+                    const b = boundsOf(it, layer);
+                    if (!b || !inside(p, b)) continue;
+                    S.sel = i;
+                    S.layer = layer;
+                    const g = layer === 'flag' ? 'fs' : 'ts';
+                    drag = { g, p, orig: moveTargets(i).map(t => [t, t[g].x, t[g].y]) };
+                    cv.setPointerCapture(e.pointerId);
+                    refresh();
+                    return;
+                }
+            }
+        });
+        cv.addEventListener('pointermove', e => {
+            if (!drag) return;
+            const p = canvasPoint(e);
+            const dx = Math.round(p.x - drag.p.x), dy = Math.round(p.y - drag.p.y);
+            for (const [t, x, y] of drag.orig) { t[drag.g].x = x + dx; t[drag.g].y = y + dy; }
+            syncControls(['x', 'y']);
+            scheduleRender();
+        });
+        const endDrag = () => { if (drag) { drag = null; save(); } };
+        cv.addEventListener('pointerup', endDrag);
+        cv.addEventListener('pointercancel', endDrag);
+
+        document.addEventListener('keydown', e => {
+            if (!e.key.startsWith('Arrow') || !cur()) return;
+            if (e.target.closest('input, textarea, select') || $('#bulk').open) return;
+            e.preventDefault();
+            const d = e.shiftKey ? 10 : 1;
+            const dx = e.key === 'ArrowLeft' ? -d : e.key === 'ArrowRight' ? d : 0;
+            const dy = e.key === 'ArrowUp' ? -d : e.key === 'ArrowDown' ? d : 0;
+            const g = S.layer === 'flag' ? 'fs' : 'ts';
+            for (const t of moveTargets(S.sel)) { t[g].x += dx; t[g].y += dy; }
+            syncControls(['x', 'y']);
+            scheduleRender();
+            save();
+        });
+
+        // ---- item editor & list ----
+        const itText = $('#itText'), itFlag = $('#itFlag');
+        itText.oninput = () => {
+            if (!cur()) return;
+            cur().text = itText.value;
+            renderList();
+            scheduleRender();
+            save();
+        };
+        itFlag.onchange = () => {
+            if (!cur()) return;
+            const v = itFlag.value.trim();
+            const c = findCountry(v);
+            itFlag.classList.toggle('bad', !!v && !c);
+            if (v && !c) return;
+            cur().flag.code = c ? c.c : '';
+            itFlag.value = c ? countryLabel(c.c) : '';
+            renderList();
+            scheduleRender();
+            save();
+        };
+        $('#customPick').onclick = () => $('#customFile').click();
+        $('#customFile').onchange = async e => {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (!file || !cur()) return;
+            cur().flag.custom = await shrinkImage(file, 1000);
+            refresh();
+            save();
+        };
+        $('#customClear').onclick = () => {
+            if (!cur()) return;
+            cur().flag.custom = null;
+            refresh();
+            save();
+        };
+
+        function readDataURL(file) {
+            return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+        }
+        async function shrinkImage(file, max) {
+            const url = await readDataURL(file);
+            const e = getImg(url);
+            await e.p;
+            const { naturalWidth: w, naturalHeight: h } = e.img;
+            if (!w || Math.max(w, h) <= max || file.type === 'image/svg+xml') return url;
+            const s = max / Math.max(w, h);
+            const c = document.createElement('canvas');
+            c.width = Math.round(w * s);
+            c.height = Math.round(h * s);
+            c.getContext('2d').drawImage(e.img, 0, 0, c.width, c.height);
+            return c.toDataURL('image/png');
+        }
+
+        function renderList() {
+            const list = $('#list');
+            list.textContent = '';
+            S.items.forEach((it, i) => {
+                const row = document.createElement('div');
+                row.className = 'row' + (i === S.sel ? ' sel' : '');
+                const n = document.createElement('span');
+                n.className = 'n';
+                n.textContent = i + 1;
+                const src = flagSrc(it, true);
+                const thumb = document.createElement(src ? 'img' : 'span');
+                if (src) thumb.src = src; else thumb.className = 'noflag';
+                const t = document.createElement('span');
+                t.className = 't';
+                t.textContent = it.text.replace(/\n/g, ' ') || '(boş)';
+                const dup = document.createElement('button');
+                dup.textContent = '⧉';
+                dup.title = 'Çoğalt';
+                dup.onclick = ev => {
+                    ev.stopPropagation();
+                    const copy = JSON.parse(JSON.stringify(it));
+                    copy.id = mkItem().id;
+                    S.items.splice(i + 1, 0, copy);
+                    S.sel = i + 1;
+                    refresh();
+                    save();
+                };
+                const del = document.createElement('button');
+                del.textContent = '×';
+                del.title = 'Sil';
+                del.onclick = ev => {
+                    ev.stopPropagation();
+                    S.items.splice(i, 1);
+                    S.sel = Math.max(0, Math.min(S.sel - (i < S.sel ? 1 : 0), S.items.length - 1));
+                    refresh();
+                    save();
+                };
+                row.append(n, thumb, t, dup, del);
+                row.onclick = () => { S.sel = i; refresh(); save(); };
+                list.append(row);
+            });
+            $('#count').textContent = `(${S.items.length})`;
+        }
+
+        function newItem(text, code, k = 1) {
+            const base = cur();
+            const it = mkItem(text, code, base);
+            if (S.mode === 'single' && base) {
+                const step = Math.round(Math.max(flagRect(base).h, base.ts.size * base.ts.lineH) + 24) * k;
+                it.fs.y += step;
+                it.ts.y += step;
+            }
+            return it;
+        }
+        $('#add').onclick = () => {
+            S.items.splice(S.sel + 1, 0, newItem('Yeni metin', ''));
+            S.sel = Math.min(S.sel + 1, S.items.length - 1);
+            refresh();
+            itText.select();
+            save();
+        };
+
+        function parseLine(line) {
+            const parts = line.split(/\t|;/).map(s => s.trim().replace(/\\n/g, '\n')).filter(Boolean);
+            if (!parts.length) return null;
+            if (parts.length === 1) {
+                const c = findCountry(parts[0]);
+                return c ? { text: c.n, code: c.c } : { text: parts[0], code: '' };
+            }
+            let c = findCountry(parts[parts.length - 1]);
+            if (c) return { text: parts.slice(0, -1).join(' ; '), code: c.c };
+            c = findCountry(parts[0]);
+            if (c) return { text: parts.slice(1).join(' ; '), code: c.c };
+            return { text: parts.join(' ; '), code: '' };
+        }
+        $('#bulkOpen').onclick = () => $('#bulk').showModal();
+        $('#bulkCancel').onclick = () => $('#bulk').close();
+        $('#bulkOk').onclick = () => {
+            const rows = $('#bulkText').value.split(/\r?\n/).map(parseLine).filter(Boolean);
+            if (!rows.length) return $('#bulk').close();
+            const replace = $('#bulkReplace').checked;
+            // New rows inherit style from the selected item (replace) or the last one (append)
+            if (!replace) S.sel = S.items.length - 1;
+            const added = rows.map((r, k) => newItem(r.text, r.code, replace ? k : k + 1));
+            if (replace) S.items = added;
+            else S.items.push(...added);
+            S.sel = S.items.length - added.length;
+            $('#bulkText').value = '';
+            $('#bulk').close();
+            refresh();
+            save();
+        };
+
+        // ---- top bar ----
+        $('#bgPick').onclick = () => $('#bgFile').click();
+        $('#bgFile').onchange = async e => {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (!file) return;
+            const src = await readDataURL(file);
+            const img = getImg(src);
+            await img.p;
+            if (!img.ok) return alert('Görsel okunamadı.');
+            S.bg.src = src;
+            S.bg.w = img.img.naturalWidth;
+            S.bg.h = img.img.naturalHeight;
+            refresh();
+            save();
+        };
+        $('#bgClear').onclick = () => { S.bg.src = null; refresh(); save(); };
+        $('#bgColor').oninput = e => { S.bg.color = e.target.value; scheduleRender(); save(); };
+        for (const k of ['w', 'h']) {
+            $('#bg' + k.toUpperCase()).onchange = e => {
+                const v = Math.round(Number(e.target.value));
+                if (v >= 16 && v <= 10000) S.bg[k] = v;
+                refresh();
+                save();
+            };
+        }
+        // Lays items out in a grid that fits the canvas, shrinking flag and text when needed
+        function autoArrange() {
+            const items = S.items;
+            if (!items.length) return;
+            const ref = cur() || items[0];
+            const hasFlag = ref.fs.show;
+            const fr = flagRect(ref);
+            const th = ref.ts.size * ref.ts.lineH;
+            const gap = Math.round(Math.max(hasFlag ? fr.h : 0, th) * 0.25);
+            const tw = Math.max(1, ...items.map(it => { const b = boundsOf(it, 'text'); return b ? b.w : 0; }));
+            const itemW = (hasFlag ? fr.w + gap : 0) + tw + gap;
+            const itemH = Math.max(hasFlag ? fr.h : 0, th) + gap;
+            const m = Math.round(Math.min(S.bg.w, S.bg.h) * 0.05);
+            let best = { s: 0, cols: 1, rows: items.length };
+            for (let cols = 1; cols <= items.length; cols++) {
+                const rows = Math.ceil(items.length / cols);
+                const s = Math.min(1, (S.bg.w - 2 * m) / (cols * itemW), (S.bg.h - 2 * m) / (rows * itemH));
+                if (s > best.s + 1e-6) best = { s, cols, rows };
+            }
+            const { s, cols, rows } = best;
+            const fw = Math.round(ref.fs.w * s), size = Math.max(8, Math.round(ref.ts.size * s));
+            const fh = fw / RATIO[ref.fs.ratio], tH = size * ref.ts.lineH, g = gap * s;
+            const rowH = Math.max(hasFlag ? fh : 0, tH);
+            const colW = (S.bg.w - 2 * m) / cols;
+            const y0 = (S.bg.h - (rows * (rowH + g) - g)) / 2;
+            items.forEach((it, i) => {
+                const x = m + Math.floor(i / rows) * colW, y = y0 + (i % rows) * (rowH + g);
+                Object.assign(it.fs, { w: fw, ratio: ref.fs.ratio, x: Math.round(x), y: Math.round(y + (rowH - fh) / 2) });
+                Object.assign(it.ts, { size, align: 'left', x: Math.round(x + (hasFlag ? fw + g : 0)), y: Math.round(y + (rowH - tH) / 2) });
+            });
+        }
+        $('#arrange').onclick = () => { autoArrange(); refresh(); save(); };
+        $('#mode').onchange = e => {
+            S.mode = e.target.value;
+            // Items coming from "each" mode usually share one position; spread them out
+            const stacked = S.items.length > 1 && S.items.every(it => it.fs.x === S.items[0].fs.x && it.fs.y === S.items[0].fs.y);
+            if (S.mode === 'single' && stacked) autoArrange();
+            refresh();
+            save();
+        };
+        $('#applyAll').onchange = e => { S.applyAll = e.target.checked; refresh(); save(); };
+        $('#fmt').onchange = e => { S.exp.fmt = e.target.value; refresh(); save(); };
+        $('#q').onchange = e => { S.exp.q = Math.max(10, Math.min(100, Number(e.target.value) || 92)); refresh(); save(); };
+
+        function syncTop() {
+            $('#bgColor').value = S.bg.color;
+            $('#bgW').value = S.bg.w;
+            $('#bgH').value = S.bg.h;
+            $('#bgW').disabled = $('#bgH').disabled = !!S.bg.src;
+            $('#bgClear').disabled = !S.bg.src;
+            $('#mode').value = S.mode;
+            $('#applyAll').checked = S.applyAll;
+            $('#fmt').value = S.exp.fmt;
+            $('#q').value = S.exp.q;
+            $('#qWrap').hidden = S.exp.fmt === 'png';
+            $('#expOne').hidden = S.mode === 'single';
+            $('#arrange').hidden = S.mode !== 'single';
+            $('#expAll').textContent = S.mode === 'single' ? 'Görseli indir' : 'Tümünü indir (ZIP)';
+            const scope = !S.applyAll ? 'Ayarlar yalnızca seçili öğeye uygulanır.'
+                : S.mode === 'single' ? 'Stil ayarları tüm öğelere, konum yalnızca seçili öğeye uygulanır.'
+                    : 'Ayarlar ve konum tüm öğelere uygulanır.';
+            $('#scopeNote').textContent = scope;
+        }
+        function syncEditor() {
+            const it = cur();
+            for (const el of [itText, itFlag, $('#customPick')]) el.disabled = !it;
+            itText.value = it ? it.text : '';
+            itFlag.value = it && it.flag.code ? countryLabel(it.flag.code) : '';
+            itFlag.classList.remove('bad');
+            $('#customClear').hidden = !(it && it.flag.custom);
+            $('#expOne').disabled = $('#expAll').disabled = !S.items.length;
+        }
+        function refresh() {
+            syncTop();
+            syncEditor();
+            syncControls();
+            renderList();
+            scheduleRender();
+        }
+
+        // ---- export ----
+        const EXT = { png: ['image/png', 'png'], jpg: ['image/jpeg', 'jpg'], webp: ['image/webp', 'webp'] };
+        function slug(s) {
+            const m = { ç: 'c', ğ: 'g', ı: 'i', İ: 'i', ö: 'o', ş: 's', ü: 'u', Ç: 'c', Ğ: 'g', Ö: 'o', Ş: 's', Ü: 'u' };
+            return (s || '').replace(/[çğıİöşüÇĞÖŞÜ]/g, ch => m[ch]).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'gorsel';
+        }
+        async function prepare(items) {
+            const ps = [];
+            if (S.bg.src) ps.push(getImg(S.bg.src).p);
+            for (const it of items) {
+                const src = flagSrc(it);
+                if (src && it.fs.show) ps.push(getImg(src).p);
+                if (it.text && it.ts.show) ps.push(document.fonts.load(fontStr(it.ts), it.text).catch(() => { }));
+            }
+            await Promise.all(ps);
+        }
+        async function renderBlob(items) {
+            await prepare(items);
+            const c = document.createElement('canvas');
+            c.width = S.bg.w;
+            c.height = S.bg.h;
+            drawScene(c.getContext('2d'), items);
+            const [type] = EXT[S.exp.fmt];
+            return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('toBlob')), type, S.exp.q / 100));
+        }
+        function download(blob, name) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = name;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        }
+        const fileName = (it, i) => `${String(i + 1).padStart(2, '0')}-${slug(it.text)}.${EXT[S.exp.fmt][1]}`;
+        async function busy(fn) {
+            $('#busy').style.display = 'flex';
+            try { await fn(); }
+            catch (err) { console.error(err); alert('Dışa aktarma başarısız: ' + err.message); }
+            finally { $('#busy').style.display = 'none'; }
+        }
+        $('#expOne').onclick = () => busy(async () => {
+            const it = cur();
+            if (it) download(await renderBlob([it]), fileName(it, S.sel));
+        });
+        $('#expAll').onclick = () => busy(async () => {
+            if (S.mode === 'single') return download(await renderBlob(S.items), `gorsel.${EXT[S.exp.fmt][1]}`);
+            const zip = new JSZip();
+            for (let i = 0; i < S.items.length; i++) zip.file(fileName(S.items[i], i), await renderBlob([S.items[i]]));
+            download(await zip.generateAsync({ type: 'blob' }), 'gorseller.zip');
+        });
+
+        // ---- project ----
+        $('#projSave').onclick = () => download(new Blob([JSON.stringify(S)], { type: 'application/json' }), 'gorsel-proje.json');
+        $('#projOpen').onclick = () => $('#projFile').click();
+        $('#projFile').onchange = async e => {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (!file) return;
+            try { S = normalize(JSON.parse(await file.text())); }
+            catch { return alert('Proje dosyası okunamadı.'); }
+            refresh();
+            save();
+        };
+        $('#reset').onclick = () => {
+            if (!confirm('Tüm öğeler ve ayarlar sıfırlansın mı?')) return;
+            S = defaultState();
+            refresh();
+            save();
+        };
+
+        window.addEventListener('resize', scheduleRender);
+        refresh();
+    </script>
+</body>
+
+</html>
